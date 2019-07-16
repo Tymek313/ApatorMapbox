@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment
 import com.example.apatormapbox.R
 
 import android.util.Log
+import android.view.MenuItem
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import java.util.*
 
 /**
@@ -19,12 +22,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         addPreferencesFromResource(R.xml.preference)
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         findPreference(getString(R.string.sync_key)).setOnPreferenceClickListener {
-            Log.d("", "sync")
             val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
             it.summary = "Last Synchronization: $date"
+            true
+        }
+        findPreference("userAPI_key").setOnPreferenceClickListener {
+            val key = PreferenceManager.getDefaultSharedPreferences(context).getString("userAPI_key", "")
+            findPreference("userAPI_key").summary = "API: $key"
             true
         }
     }

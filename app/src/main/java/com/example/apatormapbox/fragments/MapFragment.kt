@@ -42,6 +42,7 @@ class MapFragment : Fragment(), View.OnClickListener {
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.locate_device_btn -> {
+                Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
                 Log.d("locate", "Lokalizacja")
                 //TODO zlokalizuj użytkownika
             }

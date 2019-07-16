@@ -11,8 +11,14 @@
               tools:layout="@layout/fragment_map">
         <action android:id="@+id/action_mapFragment_to_settingsFragment"
                 app:destination="@id/settingsFragment"/>
+        <action android:id="@+id/action_mapFragment_to_paszportFragment"
+                app:destination="@id/paszportFragment"/>
     </fragment>
     <fragment android:id="@+id/settingsFragment"
               android:name="com.example.apatormapbox.fragments.SettingsFragment"
               android:label="SettingsFragment"/>
+    <fragment android:id="@+id/paszportFragment"
+              android:name="com.example.apatormapbox.fragments.PaszportFragment"
+              android:label="fragment_paszport"
+              tools:layout="@layout/fragment_paszport"/>
 </navigation>

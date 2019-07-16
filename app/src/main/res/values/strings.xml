@@ -7,4 +7,5 @@
     <string name="sync_key">sync_key</string>
     <string name="userAPI_key">userAPI_key</string>
     <string name="timeWindow_key">timeWindow_key</string>
+    <string name="back_btn_PF">BACK</string>
 </resources>
