@@ -2,27 +2,38 @@ package com.example.apatormapbox.fragments
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.Style
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 class MapFragment : Fragment(), View.OnClickListener {
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+
+    private lateinit var mapView: MapView
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
-        val activity = (activity as MainActivity)
-        activity.setSupportActionBar(view.mapToolbar)
-        activity.supportActionBar.apply {
-            this?.setHomeAsUpIndicator(R.drawable.ic_settings)
-            this?.setDisplayHomeAsUpEnabled(true)
-        }
         view.locate_device_btn.setOnClickListener(this)
+
+        (activity as MainActivity).apply {
+            setSupportActionBar(view.mapToolbar)
+            supportActionBar.apply {
+                this?.setHomeAsUpIndicator(R.drawable.ic_settings)
+                this?.setDisplayHomeAsUpEnabled(true)
+            }
+        }
+
+        mapView = view.mapView.apply {
+            getMapAsync {
+                it.setStyle(Style.MAPBOX_STREETS)
+            }
+        }
+        mapView.onCreate(savedInstanceState)
+
         setHasOptionsMenu(true)
         return view
     }
@@ -30,7 +41,7 @@ class MapFragment : Fragment(), View.OnClickListener {
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.locate_device_btn -> {
-                //Log.d("locate", "locate")
+                Log.d("locate", "Lokalizacja")
                 //TODO zlokalizuj użytkownika
             }
         }
@@ -43,15 +54,47 @@ class MapFragment : Fragment(), View.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             android.R.id.home -> {
-                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
+                //Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
+                Log.d("ustawienia", "Przejście do ustawień")
                 true
             }
             R.id.sync -> {
-                //Log.d("sync", "sync")
+                Log.d("sync", "Synchronizacja")
                 //TODO wykonaj synchronizację
                 false
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    //Cykle życia Mapbox
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapView.onDestroy()
     }
 }

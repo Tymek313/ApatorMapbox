@@ -1,11 +1,13 @@
-package com.example.apatormapbox
+package com.example.apatormapbox.fragments
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.example.apatormapbox.R
+
 /**
  * A simple [Fragment] subclass.
  *
