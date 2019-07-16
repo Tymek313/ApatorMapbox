@@ -36,11 +36,10 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.0.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.0.0'
     //MAPBOX
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     repositories {
         mavenCentral()
     }
-
-    dependencies {
-        implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
-    }
+    implementation 'com.takisoft.fix:preference-v7:25.3.0.0'
+    implementation "androidx.preference:preference:1.0.0-alpha3"
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.mapbox.mapboxsdk.maps.MapView
@@ -54,7 +55,7 @@ class MapFragment : Fragment(), View.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             android.R.id.home -> {
-                //Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
+                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
                 Log.d("ustawienia", "Przejście do ustawień")
                 true
             }

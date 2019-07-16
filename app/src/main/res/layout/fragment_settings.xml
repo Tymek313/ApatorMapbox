@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PrefercenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                   android:layout_height="match_parent"
-                   android:layout_width="match_parent">
-    <EditTextPreference android:title="Your API"
-                        android:key="userAPI"
-                        android:summary="Please provide your API"/>
-    <ListPreference android:title="Window Time"
-                    android:summary="Select window time."
-                    android:key="timeWindow"
-                    android:defaultValue="1"
-                    android:entries="@array/listPreference"
-                    android:entryValues="@array/listValues"/>
+<PrefercenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 </PrefercenceScreen>
