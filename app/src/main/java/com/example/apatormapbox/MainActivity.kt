@@ -1,8 +1,11 @@
 package com.example.apatormapbox
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.FragmentManager
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,5 +20,7 @@ class MainActivity : AppCompatActivity() {
         transaction.addToBackStack(null)
         transaction.commit()
 
+        val key = PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.userAPI_key), "assd")
+        Log.d("key", key)
     }
 }
