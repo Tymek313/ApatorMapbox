@@ -1,7 +1,8 @@
-package com.example.apatormapbox
+package com.example.apatormapbox.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.example.apatormapbox.R
 
 class MainActivity : AppCompatActivity() {
 
