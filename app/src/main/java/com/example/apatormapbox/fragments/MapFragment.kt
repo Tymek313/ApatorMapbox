@@ -10,7 +10,6 @@ import com.example.apatormapbox.activities.MainActivity
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 class MapFragment : Fragment() {
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -23,6 +22,7 @@ class MapFragment : Fragment() {
             this?.setHomeAsUpIndicator(R.drawable.ic_settings)
             this?.setDisplayHomeAsUpEnabled(true)
         }
+        setHasOptionsMenu(true)
         return view
     }
 
@@ -32,10 +32,13 @@ class MapFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
-            R.id.home -> {
-                Navigation.findNavController(activity!!, R.id.navHost)
+            android.R.id.home -> {
+                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
                 return true
             }
+            /*R.id.sync -> {
+
+            }*/
             else -> super.onOptionsItemSelected(item)
         }
     }

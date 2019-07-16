@@ -8,5 +8,11 @@
     <fragment android:id="@+id/mapFragment"
               android:name="com.example.apatormapbox.fragments.MapFragment"
               android:label="fragment_map"
-              tools:layout="@layout/fragment_map"/>
+              tools:layout="@layout/fragment_map">
+        <action android:id="@+id/action_mapFragment_to_settingsFragment"
+                app:destination="@id/settingsFragment"/>
+    </fragment>
+    <fragment android:id="@+id/settingsFragment"
+              android:name="com.example.apatormapbox.SettingsFragment"
+              android:label="SettingsFragment"/>
 </navigation>
