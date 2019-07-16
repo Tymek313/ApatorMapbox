@@ -1,14 +1,13 @@
-package com.example.apatormapbox
+package com.example.apatormapbox.fragments
 
 
-import android.icu.text.DateTimePatternGenerator
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
+import com.example.apatormapbox.R
+
+import android.util.Log
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
-import java.time.LocalDateTime
 import java.util.*
 
 /**

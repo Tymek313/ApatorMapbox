@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">ApatorMapbox</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="mapbox_access_token">
+        pk.eyJ1IjoiYXBhdG9ybWFwYm94IiwiYSI6ImNqeTQ5OXlsZjE0anIzY21xb3Nsb2tubTgifQ.c4_iQgT_fg0-ZwhwMrKroQ
+    </string>
     <string name="sync_key">sync_key</string>
     <string name="userAPI_key">userAPI_key</string>
     <string name="timeWindow_key">timeWindow_key</string>
