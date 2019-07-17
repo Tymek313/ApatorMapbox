@@ -1,12 +1,23 @@
 package com.example.apatormapbox.model
 
+
+import com.google.gson.annotations.SerializedName
+
 data class Inputs(
-    val array_type: String,
-    val azimuth: String,
-    val lat: String,
-    val lon: String,
-    val losses: String,
-    val module_type: String,
-    val system_capacity: String,
-    val tilt: String
+    @SerializedName("array_type")
+    val arrayType: String?,
+    @SerializedName("azimuth")
+    val azimuth: String?,
+    @SerializedName("lat")
+    val lat: String?,
+    @SerializedName("lon")
+    val lon: String?,
+    @SerializedName("losses")
+    val losses: String?,
+    @SerializedName("module_type")
+    val moduleType: String?,
+    @SerializedName("system_capacity")
+    val systemCapacity: String?,
+    @SerializedName("tilt")
+    val tilt: String?
 )

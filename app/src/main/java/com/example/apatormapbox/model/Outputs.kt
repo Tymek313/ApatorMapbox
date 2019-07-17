@@ -1,11 +1,21 @@
 package com.example.apatormapbox.model
 
+
+import com.google.gson.annotations.SerializedName
+
 data class Outputs(
-    val ac_annual: Double,
-    val ac_monthly: List<Double>,
-    val capacity_factor: Double,
-    val dc_monthly: List<Double>,
-    val poa_monthly: List<Double>,
-    val solrad_annual: Double,
-    val solrad_monthly: List<Double>
+    @SerializedName("ac_annual")
+    val acAnnual: Double?,
+    @SerializedName("ac_monthly")
+    val acMonthly: List<Double?>?,
+    @SerializedName("capacity_factor")
+    val capacityFactor: Double?,
+    @SerializedName("dc_monthly")
+    val dcMonthly: List<Double?>?,
+    @SerializedName("poa_monthly")
+    val poaMonthly: List<Double?>?,
+    @SerializedName("solrad_annual")
+    val solradAnnual: Double?,
+    @SerializedName("solrad_monthly")
+    val solradMonthly: List<Double?>?
 )

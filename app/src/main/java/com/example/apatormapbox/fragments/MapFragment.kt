@@ -2,9 +2,6 @@ package com.example.apatormapbox.fragments
 
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -13,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.example.apatormapbox.helpers.DrawableToBitmap
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -45,7 +43,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
             }
         }
 
-        markerBitmap = drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
+        markerBitmap =
+            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
 
         mapView = view.mapView.apply {
             getMapAsync(this@MapFragment)
@@ -77,10 +76,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
                         iconOffset(arrayOf(0f, -9f))
                     )
                 )
-
-        )/* { style ->
-                    //val symbolManager = SymbolManager(this, mapboxMap, style)
-                }*/
+        )
     }
 
     override fun onClick(view: View?) {
@@ -141,27 +137,5 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
     override fun onDestroyView() {
         super.onDestroyView()
         mapView.onDestroy()
-    }
-
-    fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        var bitmap: Bitmap? = null
-
-        if (drawable is BitmapDrawable) {
-            if (drawable.bitmap != null) {
-                return drawable.bitmap
-            }
-        }
-
-        if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-            bitmap =
-                Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
-        } else {
-            bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
-        }
-
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
     }
 }
