@@ -6,7 +6,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 
 object Apifactory {
 
@@ -35,8 +35,9 @@ object Apifactory {
 
     fun retrofit(): Retrofit = Retrofit.Builder()
         .client(solarClient)
-        .baseUrl("https://developer.nrel.gov/api/pvwatts/")
-        .addConverterFactory(MoshiConverterFactory.create())
+        .baseUrl("https://developer.nrel.gov/api/")
+        .addConverterFactory(GsonConverterFactory.create())
+        //.addConverterFactory(MoshiConverterFactory.create())
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
 
