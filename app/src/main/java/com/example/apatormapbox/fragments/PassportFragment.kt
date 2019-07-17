@@ -14,6 +14,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 
 import com.example.apatormapbox.R
+import com.example.apatormapbox.model.StationInfo
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 
 class PaszportFragment : Fragment() {
@@ -34,7 +35,7 @@ class PaszportFragment : Fragment() {
         val city = ""
         val state = "Colorado"
         val distance = 2029
-        val dataPoa = arrayListOf<DataEntry>().also {
+        val dataPoa: ArrayList<DataEntry> = arrayListOf<DataEntry>().also {
             for(i in 1..12){
                 it.add(ValueDataEntry("$i", 1))
             }
@@ -109,3 +110,4 @@ class PaszportFragment : Fragment() {
         return view
     }
 }
+
