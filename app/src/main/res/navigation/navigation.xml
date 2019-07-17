@@ -10,7 +10,11 @@
               android:label="fragment_map"
               tools:layout="@layout/fragment_map">
         <action android:id="@+id/action_mapFragment_to_settingsFragment"
-                app:destination="@id/settingsFragment"/>
+                app:destination="@+id/settingsFragment"
+                app:enterAnim="@anim/nav_default_enter_anim"
+                app:exitAnim="@anim/nav_default_exit_anim"
+                app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+                app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         <action android:id="@+id/action_mapFragment_to_paszportFragment"
                 app:destination="@id/paszportFragment"/>
     </fragment>

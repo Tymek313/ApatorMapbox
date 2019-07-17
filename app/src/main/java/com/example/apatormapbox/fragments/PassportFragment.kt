@@ -14,6 +14,7 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 
 import com.example.apatormapbox.R
+import com.example.apatormapbox.model.Outputs
 import com.example.apatormapbox.model.StationInfo
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 
