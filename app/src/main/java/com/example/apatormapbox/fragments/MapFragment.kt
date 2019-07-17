@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.example.apatormapbox.helpers.DrawableToBitmap
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -34,6 +35,7 @@ import kotlinx.android.synthetic.main.fragment_map.view.*
 class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
+    private lateinit var markerBitmap: Bitmap
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -47,11 +49,12 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
             }
         }
 
+        markerBitmap = drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
+
         mapView = view.mapView.apply {
             getMapAsync(this@MapFragment)
             onCreate(savedInstanceState)
         }
-        mapView.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
         return view
