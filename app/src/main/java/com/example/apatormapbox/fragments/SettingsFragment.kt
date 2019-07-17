@@ -1,31 +1,69 @@
 package com.example.apatormapbox.fragments
 
 
+import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import com.example.apatormapbox.R
-
-import android.util.Log
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
+import com.example.apatormapbox.R
 import java.util.*
 
-/**
- * A simple [Fragment] subclass.
- *
- */
 class SettingsFragment : PreferenceFragmentCompat() {
+
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preference)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        findPreference(getString(R.string.sync_key)).setOnPreferenceClickListener {
-            Log.d("", "sync")
-            val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
-            it.summary = "Last Synchronization: $date"
-            true
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+        arrayOf(
+            getString(R.string.api_key_preference),
+            //getString(R.string.sync_preference),
+            getString(R.string.time_window_preference)
+        ).forEach { setupPreference(it) }
+
+        findPreference(getString(R.string.sync_preference)).apply {
+            summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
+            setOnPreferenceClickListener {
+                val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
+                val lastSyncInfo = "Last Synchronization: $date"
+                it.summary = lastSyncInfo
+                sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                true
+            }
+        }
+    }
+
+    private fun listPreferenceValueToEntry(preference: ListPreference, newValue: Int): CharSequence {
+        return preference.entries[newValue - 1]
+    }
+
+    /*
+     *   Ustawianie początkowej wartości oraz
+     *   listenera zmiany do wyświetlania obecnej wartości w opcjach
+     */
+    private fun setupPreference(preferenceKey: String) {
+        findPreference(preferenceKey).apply {
+            if (this is ListPreference) {
+                summary = entry
+            } else {
+                summary = sharedPreferences.getString(preferenceKey, "")
+            }
+            setOnPreferenceChangeListener { preference, newValue ->
+                if (preference is ListPreference) {
+                    summary = listPreferenceValueToEntry(preference, (newValue as String).toInt())
+                } else {
+                    summary = newValue as String
+                }
+                true
+            }
         }
     }
 }

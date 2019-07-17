@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="listPreference">
+    <string-array name="timeWindowLabels">
         <item>1 Day</item>
         <item>2 Day</item>
         <item>1 Week</item>
@@ -8,7 +8,7 @@
         <item>1 Year</item>
     </string-array>
 
-    <string-array name="listValues">
+    <string-array name="timeWindowValues">
         <item>1</item>
         <item>2</item>
         <item>3</item>
