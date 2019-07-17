@@ -1,11 +1,13 @@
-package com.example.apatormapbox.model.stations
+package com.example.apatormapbox.models.stations
 
 
 import com.google.gson.annotations.SerializedName
 
-data class Nsrdb(
+data class AllStation(
     @SerializedName("city")
     val city: String?,
+    @SerializedName("dataset")
+    val dataset: String?,
     @SerializedName("distance")
     val distance: Int?,
     @SerializedName("elevation")

@@ -1,9 +1,9 @@
-package com.example.apatormapbox.model.stations
+package com.example.apatormapbox.models.stations
 
 
 import com.google.gson.annotations.SerializedName
 
-data class Tmy2(
+data class Nsrdb(
     @SerializedName("city")
     val city: String?,
     @SerializedName("distance")
@@ -16,6 +16,8 @@ data class Tmy2(
     val lat: Double?,
     @SerializedName("lon")
     val lon: Double?,
+    @SerializedName("resolution")
+    val resolution: Int?,
     @SerializedName("state")
     val state: String?,
     @SerializedName("timezone")
