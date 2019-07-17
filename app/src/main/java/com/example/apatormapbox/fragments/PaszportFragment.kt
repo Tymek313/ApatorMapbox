@@ -2,6 +2,7 @@ package com.example.apatormapbox.fragments
 
 
 import android.os.Bundle
+import android.renderscript.Sampler
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -34,30 +35,30 @@ class PaszportFragment : Fragment() {
         val state = "Colorado"
         val distance = 2029
         val dataPoa = arrayListOf<DataEntry>().also {
-            it.add(ValueDataEntry("1", 1000))
-            it.add(ValueDataEntry("2", 100))
-            it.add(ValueDataEntry("3", 1300))
+            for(i in 1..12){
+                it.add(ValueDataEntry("$i", 1))
+            }
         }
         val dataDC = arrayListOf<DataEntry>().also {
-            it.add(ValueDataEntry("1", 21000))
-            it.add(ValueDataEntry("2", 3100))
-            it.add(ValueDataEntry("3", 41300))
+            for(i in 1..12){
+                it.add(ValueDataEntry("$i", 1))
+            }
         }
         val dataAC = arrayListOf<DataEntry>().also {
-            it.add(ValueDataEntry("1", 621000))
-            it.add(ValueDataEntry("2", 73100))
-            it.add(ValueDataEntry("3", 481300))
+            for(i in 1..12){
+                it.add(ValueDataEntry("$i", 1))
+            }
         }
         val dataSOL = arrayListOf<DataEntry>().also {
-            it.add(ValueDataEntry("1", 69210900))
-            it.add(ValueDataEntry("2", 793100))
-            it.add(ValueDataEntry("3", 4981300))
+            for(i in 1..12){
+                it.add(ValueDataEntry("$i", 1))
+            }
         }
 
         //przygotowane wczytanie danych i wyswietlnie danych --->
         //////////////////////////////////////////////////////////////////////////////////////////
-        view.distance_value_PF2.setText(distance)
-        view.state_value_PF2.setText(state)
+        view.distance_value_PF.setText(distance.toString())
+        view.state_value_PF.setText(state)
         view.city_value_PF.setText(city)
         view.location_value_PF.setText(location)
         view.tz_value_PF.setText(tz.toString())
@@ -107,6 +108,4 @@ class PaszportFragment : Fragment() {
 
         return view
     }
-
-
 }
