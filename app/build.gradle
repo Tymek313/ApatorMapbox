@@ -35,11 +35,18 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.0.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.0.0'
+
     //MAPBOX
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     repositories {
         mavenCentral()
     }
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v8:0.7.0'
     implementation 'com.takisoft.fix:preference-v7:25.3.0.0'
     implementation "androidx.preference:preference:1.0.0-alpha3"
+    //RETROFIT
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    //GSON
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
 }
