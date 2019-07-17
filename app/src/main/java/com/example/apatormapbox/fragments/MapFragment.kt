@@ -1,21 +1,37 @@
 package com.example.apatormapbox.fragments
 
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.change_localization.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
-class MapFragment : Fragment(), View.OnClickListener {
+
+class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
 
@@ -32,12 +48,8 @@ class MapFragment : Fragment(), View.OnClickListener {
         }
 
         mapView = view.mapView.apply {
-            getMapAsync {
-                it.setStyle(Style.MAPBOX_STREETS)
-            }
-            setOnClickListener{
-
-            }
+            getMapAsync(this@MapFragment)
+            onCreate(savedInstanceState)
         }
         mapView.onCreate(savedInstanceState)
 
@@ -45,22 +57,48 @@ class MapFragment : Fragment(), View.OnClickListener {
         return view
     }
 
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        val symbols = ArrayList<Feature>()
+        symbols.add(Feature.fromGeometry(Point.fromLngLat(25.0000, 25.0000)))
+        mapboxMap.setStyle(
+            Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
+                .withSource(
+                    GeoJsonSource(
+                        "SOURCE_ID",
+                        FeatureCollection.fromFeatures(symbols)
+                    )
+                )
+                .withImage(
+                    "ICON_ID", markerBitmap
+                )
+                .withLayer(
+                    SymbolLayer("LAYER_ID", "SOURCE_ID").withProperties(
+                        PropertyFactory.iconImage("ICON_ID"),
+                        iconAllowOverlap(true),
+                        iconOffset(arrayOf(0f, -9f))
+                    )
+                )
+
+        )/* { style ->
+                    //val symbolManager = SymbolManager(this, mapboxMap, style)
+                }*/
+    }
+
     override fun onClick(view: View?) {
         when (view?.id) {
             R.id.locate_device_btn -> {
-                Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
                 Log.d("locate", "Lokalizacja")
                 //TODO zlokalizuj użytkownika
             }
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater!!.inflate(R.menu.map_toolbar_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.map_toolbar_menu, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             android.R.id.home -> {
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
                 Log.d("ustawienia", "Przejście do ustawień")
