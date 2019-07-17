@@ -13,7 +13,7 @@
     <string name="Lon_textView_PF">Longitude: </string>
     <string name="elev_textView_PF">Elevation: </string>
     <string name="tz_textView_PF">Timezone: </string>
-    <string name="location_textView_PF">ID: </string>
+    <string name="location_textView_PF">Location: </string>
     <string name="City_textView_PF">City: </string>
     <string name="state_textView_PF">State: </string>
     <string name="SolarRF_textView_PF">Filename: </string>
