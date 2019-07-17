@@ -62,7 +62,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         val symbols = ArrayList<Feature>()
-        symbols.add(Feature.fromGeometry(Point.fromLngLat(25.0000, 25.0000)))
+        symbols.add(Feature.fromGeometry(Point.fromLngLat(21.016758, 52.218822)))
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(

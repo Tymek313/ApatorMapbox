@@ -16,11 +16,15 @@ class MainActivity : AppCompatActivity() {
 
         val viewModel = ViewModelProviders.of(this).get(SolarViewModel::class.java)
 
-        viewModel.fetchSolars()
+        //viewModel.fetchSolars()
+        viewModel.fetchStations(40, -105)
+
+        viewModel.stations.observe(this, Observer {
+            Log.d("pobrano stacje", it.toString())
+        })
 
         viewModel.solars.observe(this, Observer {
-            Log.d("pobrano", it.toString())
+            Log.d("pobrano solary", it.toString())
         })
     }
-
 }
