@@ -32,11 +32,45 @@ class PaszportFragment : Fragment() {
             it.add(ValueDataEntry("2", 100))
             it.add(ValueDataEntry("3", 1300))
         }
+        piePoa.title("Monthly plane of array irradiance values")
         piePoa.data(dataPoa)
         anyChartViewPOA.setChart(piePoa)
-        
         /////////////////////////////////////////////
-
+        val anyChartViewDC = view.dc_monthly_ACV_PF
+        APIlib.getInstance().setActiveAnyChartView(anyChartViewDC)
+        val pieDC = AnyChart.column()
+        val dataDC = arrayListOf<DataEntry>().also {
+            it.add(ValueDataEntry("1", 21000))
+            it.add(ValueDataEntry("2", 3100))
+            it.add(ValueDataEntry("3", 41300))
+        }
+        pieDC.title("Monthly DC array output")
+        pieDC.data(dataDC)
+        anyChartViewDC.setChart(pieDC)
+        /////////////////////////////////////////////
+        val anyChartViewAC = view.ac_monthly_ACV_PF
+        APIlib.getInstance().setActiveAnyChartView(anyChartViewAC)
+        val pieAC = AnyChart.column()
+        val dataAC = arrayListOf<DataEntry>().also {
+            it.add(ValueDataEntry("1", 621000))
+            it.add(ValueDataEntry("2", 73100))
+            it.add(ValueDataEntry("3", 481300))
+        }
+        pieAC.title("Monthly AC system output")
+        pieAC.data(dataAC)
+        anyChartViewAC.setChart(pieAC)
+        /////////////////////////////////////////////
+        val anyChartViewSOL = view.solrad_monthly_ACV_PF
+        APIlib.getInstance().setActiveAnyChartView(anyChartViewSOL)
+        val pieSOL = AnyChart.column()
+        val dataSOL = arrayListOf<DataEntry>().also {
+            it.add(ValueDataEntry("1", 69210900))
+            it.add(ValueDataEntry("2", 793100))
+            it.add(ValueDataEntry("3", 4981300))
+        }
+        pieSOL.title("Monthly solar radiation values")
+        pieSOL.data(dataSOL)
+        anyChartViewSOL.setChart(pieSOL)
 
 
 

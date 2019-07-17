@@ -9,13 +9,115 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+        <Button
+                android:text="@string/back_btn_PF"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/back_btn_PF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"/>
+        <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/back_btn_PF">
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:orientation="vertical">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:id="@+id/solrad_Layout"
+                >
+                    <com.anychart.AnyChartView
+                            android:id="@+id/solrad_monthly_ACV_PF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginStart="8dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginBottom="8dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:id="@+id/ac_Layout"
+                >
+                    <com.anychart.AnyChartView
+                            android:id="@+id/ac_monthly_ACV_PF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginStart="8dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginBottom="8dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:id="@+id/dc_Layout"
+                >
+                    <com.anychart.AnyChartView
+                            android:id="@+id/dc_monthly_ACV_PF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginStart="8dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginBottom="8dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:id="@+id/poa_Layout"
+                >
+                    <com.anychart.AnyChartView
+                            android:id="@+id/poa_monthly_ACV_PF"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginStart="8dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="8dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:layout_marginBottom="8dp"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </ScrollView>
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:id="@+id/constraintLayout"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/constraintLayout">
+                app:layout_constraintTop_toTopOf="parent"
+        >
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -24,9 +126,7 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/solarRF_value_PF"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"/>
+                    app:layout_constraintTop_toBottomOf="@+id/location_value_PF2"/>
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -35,7 +135,7 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/state_value_PF2"/>
+                    app:layout_constraintTop_toBottomOf="@+id/distance_value_PF2"/>
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -44,7 +144,7 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/city_value_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/solarRF_value_PF"/>
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -53,7 +153,9 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/location_value_PF2"/>
+                    app:layout_constraintTop_toBottomOf="@+id/state_value_PF2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="8dp"/>
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -71,14 +173,15 @@
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/tz_value_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/tz_value_PF"
+            />
             <TextView
                     android:text="@string/lat_textView_PF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/lat_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     app:layout_constraintTop_toTopOf="parent"
                     android:layout_marginTop="8dp"/>
             <TextView
@@ -87,7 +190,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/lon_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@+id/lat_textView_PF"/>
             <TextView
@@ -96,7 +199,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/elev_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@+id/lon_textView_PF"/>
             <TextView
@@ -105,7 +208,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/tz_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@+id/elev_textView_PF"/>
             <TextView
@@ -114,47 +217,48 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/location_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/tz_textView_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/tz_textView_PF"
+            />
             <TextView
                     android:text="@string/City_textView_PF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/city_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/location_textView_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/state_textView_PF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="8dp"/>
             <TextView
                     android:text="@string/state_textView_PF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/state_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/city_textView_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/solarRF_textView_PF"/>
             <TextView
                     android:text="@string/SolarRF_textView_PF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/solarRF_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
+                    android:layout_marginStart="105dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@+id/state_textView_PF"/>
+                    app:layout_constraintTop_toBottomOf="@+id/distance_textView_PF"/>
             <TextView
                     android:text="@string/Distance_textView_PF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/distance_textView_PF"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toBottomOf="@+id/location_textView_PF"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="100dp"
-                    app:layout_constraintTop_toBottomOf="@+id/solarRF_textView_PF"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginStart="105dp"/>
             <TextView
                     android:text="@string/value"
                     android:layout_width="wrap_content"
@@ -188,106 +292,5 @@
                                                         app:layout_constraintGuide_begin="205dp"
                                                         android:orientation="vertical"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="150dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
-            android:id="@+id/poa_Layout"
-            app:layout_constraintHorizontal_bias="0.0">
-        <com.anychart.AnyChartView
-                android:id="@+id/poa_monthly_ACV_PF"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="8dp"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/dc_Layout"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/poa_Layout"
-                android:layout_marginTop="8dp">
-            <com.anychart.AnyChartView
-                    android:id="@+id/dc_monthly_ACV_PF"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/ac_Layout"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/dc_Layout"
-                android:layout_marginTop="8dp">
-            <com.anychart.AnyChartView
-                    android:id="@+id/ac_monthly_ACV_PF"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:id="@+id/solrad_Layout"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/ac_Layout">
-            <com.anychart.AnyChartView
-                    android:id="@+id/solrad_monthly_ACV_PF"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-        <Button
-                android:text="@string/back_btn_PF"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/back_btn_PF"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
