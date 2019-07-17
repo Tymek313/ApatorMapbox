@@ -70,7 +70,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
                     "ICON_ID", markerBitmap
                 )
                 .withLayer(
-                    SymbolLayer("LAYER_ID", "SOURCE_ID").withProperties(
+                    SymbolLayer("LAYER_ID", "SOURCE_ID")
+                        .withProperties(
                         PropertyFactory.iconImage("ICON_ID"),
                         iconAllowOverlap(true),
                         iconOffset(arrayOf(0f, -9f))

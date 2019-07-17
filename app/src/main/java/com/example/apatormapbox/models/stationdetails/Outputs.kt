@@ -1,4 +1,4 @@
-package com.example.apatormapbox.model.stationdetails
+package com.example.apatormapbox.models.stationdetails
 
 
 import com.google.gson.annotations.SerializedName

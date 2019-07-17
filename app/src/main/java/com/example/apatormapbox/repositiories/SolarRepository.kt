@@ -1,13 +1,13 @@
 package com.example.apatormapbox.repositiories
 
 import com.example.apatormapbox.interfaces.SolarApi
-import com.example.apatormapbox.model.stationdetails.Solar
-import com.example.apatormapbox.model.stations.Station
+import com.example.apatormapbox.models.stationdetails.Solar
+import com.example.apatormapbox.models.stations.Station
 
 class SolarRepository(private val api: SolarApi) : BaseRepository() {
-    suspend fun getSolars(): Solar? {
+    suspend fun getSolars(stationId: Int): Solar? {
         return safeApiCall(
-            call = { api.getSolar().await() },
+            call = { api.getSolar(stationId).await() },
             errorMessage = "Error fetching solars"
         )
     }
