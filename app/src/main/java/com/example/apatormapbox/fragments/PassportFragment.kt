@@ -18,7 +18,7 @@ import com.example.apatormapbox.model.Outputs
 import com.example.apatormapbox.model.StationInfo
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 
-class PaszportFragment : Fragment() {
+class PassportFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

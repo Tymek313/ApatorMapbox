@@ -22,7 +22,7 @@
               android:name="com.example.apatormapbox.fragments.SettingsFragment"
               android:label="SettingsFragment"/>
     <fragment android:id="@+id/paszportFragment"
-              android:name="com.example.apatormapbox.fragments.PaszportFragment"
+              android:name="com.example.apatormapbox.fragments.PassportFragment"
               android:label="fragment_paszport"
               tools:layout="@layout/fragment_paszport">
         <action android:id="@+id/action_paszportFragment_to_mapFragment"
