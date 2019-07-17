@@ -12,6 +12,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import java.util.*
+import kotlin.properties.Delegates
 
 /**
  * A simple [Fragment] subclass.
@@ -20,19 +21,16 @@ import java.util.*
 class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preference)
+
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         findPreference(getString(R.string.sync_key)).setOnPreferenceClickListener {
             val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
             it.summary = "Last Synchronization: $date"
-            true
-        }
-        findPreference("userAPI_key").setOnPreferenceClickListener {
-            val key = PreferenceManager.getDefaultSharedPreferences(context).getString("userAPI_key", "")
-            findPreference("userAPI_key").summary = "API: $key"
             true
         }
     }
