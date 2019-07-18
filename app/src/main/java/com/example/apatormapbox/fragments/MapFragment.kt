@@ -69,21 +69,21 @@ class MapFragment : Fragment(), View.OnClickListener {
             R.id.sync -> {
                 Log.d("sync", "Synchronizacja")
 
-                // Implementacja okna dialogowego
-                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
-                val mBuilder = AlertDialog.Builder(context)
-                    .setView(mDialogView)
-                    .setTitle("Change Localization")
-                val mAlertDialog = mBuilder.show()
-
-                mDialogView.change_btn_CL.setOnClickListener {
-                    val longitude = mDialogView.longitude_CL.text.toString()
-                    val latitude = mDialogView.latitude_CL.text.toString()
-                    mAlertDialog.dismiss()
-                }
-                mDialogView.cancel_btn_CL.setOnClickListener {
-                    mAlertDialog.dismiss()
-                }
+//                // Implementacja okna dialogowego
+//                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
+//                val mBuilder = AlertDialog.Builder(context)
+//                    .setView(mDialogView)
+//                    .setTitle("Change Localization")
+//                val mAlertDialog = mBuilder.show()
+//
+//                mDialogView.change_btn_CL.setOnClickListener {
+//                    val longitude = mDialogView.longitude_CL.text.toString()
+//                    val latitude = mDialogView.latitude_CL.text.toString()
+//                    mAlertDialog.dismiss()
+//                }
+//                mDialogView.cancel_btn_CL.setOnClickListener {
+//                    mAlertDialog.dismiss()
+//                }
 
 
                 //TODO wykonaj synchronizację
