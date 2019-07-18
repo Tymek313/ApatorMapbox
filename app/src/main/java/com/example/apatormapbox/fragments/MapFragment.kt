@@ -1,24 +1,28 @@
 package com.example.apatormapbox.fragments
 
-
-import android.app.AlertDialog
-import android.app.Dialog
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
-import kotlinx.android.synthetic.main.change_localization.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
-class MapFragment : Fragment(), View.OnClickListener {
+class MapFragment : Fragment(), View.OnClickListener{
 
     private lateinit var mapView: MapView
 
+    @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         view.locate_device_btn.setOnClickListener(this)
@@ -33,11 +37,33 @@ class MapFragment : Fragment(), View.OnClickListener {
 
         mapView = view.mapView.apply {
             getMapAsync {
-                it.setStyle(Style.MAPBOX_STREETS)
-            }
-            setOnClickListener{
+                it.setStyle(Style.MAPBOX_STREETS){
+                    style ->
+                    if (PermissionsManager.areLocationPermissionsGranted(view.context)){
+                    val customLocationComponentOptions = LocationComponentOptions.builder(view.context)
+                        .trackingGesturesManagement(true)
+                        .accuracyColor(ContextCompat.getColor(view.context, R.color.mapboxGreen))
+                        .build()
+                    if(it.style != null){
+                        val locationComponentActivationOptions = LocationComponentActivationOptions.builder(view.context, style)
+                            .locationComponentOptions(customLocationComponentOptions)
+                            .build()
+                        it.locationComponent.apply {
+                            activateLocationComponent(locationComponentActivationOptions)
+                            isLocationComponentEnabled = true
+                            cameraMode = CameraMode.TRACKING
+                            renderMode = RenderMode.COMPASS
+                        }
+                    }
+                }
+
 
             }
+        }
+
+
+
+
         }
         mapView.onCreate(savedInstanceState)
 

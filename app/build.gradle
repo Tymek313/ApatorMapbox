@@ -44,4 +44,6 @@ dependencies {
     implementation "androidx.preference:preference:1.0.0-alpha3"
 
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.41.0'
+
 }
