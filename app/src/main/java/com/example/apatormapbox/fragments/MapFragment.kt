@@ -68,7 +68,8 @@ class MapFragment : Fragment(), View.OnClickListener {
             }
             R.id.sync -> {
                 Log.d("sync", "Synchronizacja")
-                Log.d("", "Click on map")
+
+                // Implementacja okna dialogowego
                 val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
                 val mBuilder = AlertDialog.Builder(context)
                     .setView(mDialogView)

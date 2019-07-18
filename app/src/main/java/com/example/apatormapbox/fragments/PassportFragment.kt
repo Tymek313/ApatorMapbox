@@ -27,7 +27,7 @@ class PassportFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_paszport, container, false)
 
-        // zmieniaj tutaj!
+        // zmieniaj tutaj! - chwilowe dane testowe... - najlepiej nadac inna wartosc stałym aby nie grzebać w kodzie
         val lat = 40.0099983215332
         val lon = -105.0199966430664
         val elev = 1581.8399658203125
@@ -36,6 +36,11 @@ class PassportFragment : Fragment() {
         val city = ""
         val state = "Colorado"
         val distance = 2029
+        val acAnnual = 6575.31884765625
+        val solradAnnual = 5.618043899536133
+        val capacityFactor = 18.765178680419922
+
+        // implementacja zmiennych data wykonuj przez objects/SetPassportDate/setData<Poa,DC,AC,SOL>
         val dataPoa: ArrayList<DataEntry> = arrayListOf<DataEntry>().also {
             for(i in 1..12){
                 it.add(ValueDataEntry("$i", 1))
@@ -59,6 +64,7 @@ class PassportFragment : Fragment() {
 
         //przygotowane wczytanie danych i wyswietlnie danych --->
         //////////////////////////////////////////////////////////////////////////////////////////
+        // sekcja ustawienia value - okno tekstu z wartosciami -->
         view.distance_value_PF.setText(distance.toString())
         view.state_value_PF.setText(state)
         view.city_value_PF.setText(city)
@@ -67,8 +73,12 @@ class PassportFragment : Fragment() {
         view.elev_value_PF.setText(elev.toString())
         view.lon_value_PF.setText(lon.toString())
         view.lat_value_PF.setText(lat.toString())
+        view.ac_annual_value_PF.setText(acAnnual.toString())
+        view.solrad_annual_value_PF.setText(solradAnnual.toString())
+        view.capacity_factor_value_PF.setText(capacityFactor.toString())
 
         //////////////////////////////////////////////////////////////////////////////////////////
+        // sekcja wykresow -->
         val anyChartViewPOA = view.poa_monthly_ACV_PF
         APIlib.getInstance().setActiveAnyChartView(anyChartViewPOA)
         val piePoa = AnyChart.column()
@@ -76,7 +86,6 @@ class PassportFragment : Fragment() {
         piePoa.data(dataPoa)
         anyChartViewPOA.setChart(piePoa)
 
-        //////////////////////////////////////////////////////////////////////////////////////////
         val anyChartViewDC = view.dc_monthly_ACV_PF
         APIlib.getInstance().setActiveAnyChartView(anyChartViewDC)
         val pieDC = AnyChart.column()
@@ -84,7 +93,6 @@ class PassportFragment : Fragment() {
         pieDC.data(dataDC)
         anyChartViewDC.setChart(pieDC)
 
-        //////////////////////////////////////////////////////////////////////////////////////////
         val anyChartViewAC = view.ac_monthly_ACV_PF
         APIlib.getInstance().setActiveAnyChartView(anyChartViewAC)
         val pieAC = AnyChart.column()
@@ -93,7 +101,6 @@ class PassportFragment : Fragment() {
         pieAC.data(dataAC)
         anyChartViewAC.setChart(pieAC)
 
-        //////////////////////////////////////////////////////////////////////////////////////////
         val anyChartViewSOL = view.solrad_monthly_ACV_PF
         APIlib.getInstance().setActiveAnyChartView(anyChartViewSOL)
         val pieSOL = AnyChart.column()
