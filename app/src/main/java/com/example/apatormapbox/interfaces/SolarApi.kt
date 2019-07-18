@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 interface SolarApi {
     @GET("pvwatts/v6.json?system_capacity=4&azimuth=180&tilt=40&array_type=1&module_type=1&losses=10")
-    fun getSolar(@Query("file_id") stationId: Int): Deferred<Response<StationDetails>>
+    fun getStationDetails(@Query("file_id") stationId: Int): Deferred<Response<StationDetails>>
 
     @GET("solar/data_query/v1.json?&radius=2000&all=1")
     fun getStations(@Query("lat") lat: Int, @Query("lon") lon: Int): Deferred<Response<Station>>
