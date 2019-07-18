@@ -4,23 +4,30 @@ import androidx.room.TypeConverter
 
 class Converters {
     @TypeConverter
-    fun doubleListToJson(list: List<Double?>): String {
+    fun doubleListToJson(list: List<Double?>?): String? {
+        if (list.isNullOrEmpty())
+            return ""
         return list.joinToString(":")
     }
 
     @TypeConverter
-    fun jsonToDoubleList(json: String): List<Double?> {
+    fun jsonToDoubleList(json: String?): List<Double?>? {
+        if (json.isNullOrEmpty())
+            return listOf()
         return json.split(":".toRegex(), 0).map { it.toDouble() }
     }
 
     @TypeConverter
-    fun jsonToIntList(json: String): List<Int?> {
-        return json.split(":".toRegex(), 0).map { it.toInt() }
-    }
-
-    @TypeConverter
-    fun intListToJson(list: List<Int?>): String {
+    fun intListToJson(list: List<Int?>?): String? {
+        if (list.isNullOrEmpty())
+            return ""
         return list.joinToString(":")
     }
 
+    @TypeConverter
+    fun jsonToIntList(json: String?): List<Int?>? {
+        if (json.isNullOrEmpty())
+            return listOf()
+        return json.split(":".toRegex(), 0).map { it.toInt() }
+    }
 }
