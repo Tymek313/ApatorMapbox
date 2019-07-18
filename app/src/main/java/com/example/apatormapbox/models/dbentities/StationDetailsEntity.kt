@@ -1,6 +1,10 @@
 package com.example.apatormapbox.models.dbentities
 
-data class StationEntity(
+import androidx.room.Entity
+
+
+@Entity(tableName = "station_details")
+data class StationDetailsEntity(
     var id: String? = null,
     var lat: Double? = null,
     var lon: Double?,
