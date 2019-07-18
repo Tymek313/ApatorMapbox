@@ -6,7 +6,7 @@ import com.example.apatormapbox.models.stationdetails.StationDetails
 object JsonToStationEntity {
     fun map(sd: StationDetails): StationDetailsEntity {
         return StationDetailsEntity(
-            id = sd.inputs?.fileId,
+            id = sd.inputs?.fileId!!,
             lat = sd.stationInfo?.lat,
             lon = sd.stationInfo?.lon,
             elev = sd.stationInfo?.elev,

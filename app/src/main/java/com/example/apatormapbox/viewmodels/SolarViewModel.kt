@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.apatormapbox.database.MainDatabase
 import com.example.apatormapbox.helpers.Apifactory
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
-import com.example.apatormapbox.models.stationdetails.StationDetails
+import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import com.example.apatormapbox.repositiories.SolarRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,7 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
     val database = MainDatabase.getDatabase(application)
     private val repository = SolarRepository(Apifactory.solarApi, database!!.stationDao())
     //LIVE DATA
-    val stationDetails = MutableLiveData<StationDetails>()
+    val stationDetails = MutableLiveData<StationDetailsEntity>()
     val stations = MutableLiveData<List<StationBasicEntity>>()
 
     fun fetchStationsFromApi(lat: Int, lon: Int) {
@@ -44,10 +44,13 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun fetchStationDetails(stationId: Int) {
+    fun fetchStationDetails(stationId: String) {
         scope.launch {
-            val solars = repository.getStationDetails(stationId)
-            this@SolarViewModel.stationDetails.postValue(solars)
+            var stationDetails = repository.getStationDetailsFromDb(stationId)
+            if (stationDetails == null) {
+                stationDetails = repository.getStationDetailsFromApi(stationId)
+            }
+            this@SolarViewModel.stationDetails.postValue(stationDetails)
         }
     }
 }
