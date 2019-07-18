@@ -12,10 +12,12 @@ import android.util.Log
 import android.view.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.DrawableToBitmap
+import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -30,12 +32,15 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.change_localization.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
 
     private lateinit var mapView: MapView
     private lateinit var markerBitmap: Bitmap
+    private val solarViewModel: SolarViewModel by viewModel()
+    private val symbols = ArrayList<Feature>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -51,18 +56,25 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
 
         markerBitmap = drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
 
-        mapView = view.mapView.apply {
-            getMapAsync(this@MapFragment)
-            onCreate(savedInstanceState)
-        }
+        mapView = view.mapView
+
+        solarViewModel.fetchStationsFromDb()
+        solarViewModel.stations.observe(this, Observer { stationBasicEntities ->
+            //Log.d("pobrano stacje", it.toString())
+            stationBasicEntities.forEach {
+                symbols.add(Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!)))
+            }
+            mapView.apply {
+                getMapAsync(this@MapFragment)
+                onCreate(savedInstanceState)
+            }
+        })
 
         setHasOptionsMenu(true)
         return view
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-        val symbols = ArrayList<Feature>()
-        symbols.add(Feature.fromGeometry(Point.fromLngLat(21.016758, 52.218822)))
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(

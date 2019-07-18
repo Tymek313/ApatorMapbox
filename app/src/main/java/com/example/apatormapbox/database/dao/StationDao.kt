@@ -1,6 +1,5 @@
 package com.example.apatormapbox.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -11,7 +10,7 @@ import com.example.apatormapbox.models.dbentities.StationBasicEntity
 interface StationDao {
 
     @Query("SELECT * FROM station_basic")
-    fun getAllAStations(): LiveData<StationBasicEntity>
+    fun getAllAStations(): List<StationBasicEntity>
 
     @Insert
     fun insertStation(station: StationBasicEntity)

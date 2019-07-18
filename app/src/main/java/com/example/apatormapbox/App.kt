@@ -3,6 +3,7 @@ package com.example.apatormapbox
 import android.app.Application
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.mapboxsdk.Mapbox
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
@@ -15,7 +16,7 @@ class App : Application() {
             androidContext(this@App)
             modules(
                 listOf(module {
-                    viewModel { SolarViewModel() }
+                    viewModel { SolarViewModel(androidApplication()) }
                 })
             )
         }
