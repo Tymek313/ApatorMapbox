@@ -3,8 +3,7 @@
     <string name="mapbox_access_token">
         pk.eyJ1IjoiYXBhdG9ybWFwYm94IiwiYSI6ImNqeTQ5OXlsZjE0anIzY21xb3Nsb2tubTgifQ.c4_iQgT_fg0-ZwhwMrKroQ
     </string>
-
-    <!--Preference keys-->
+    
     <string name="sync_preference">sync_preference</string>
     <string name="api_key_preference">api_key_preference</string>
     <string name="time_window_preference">time_window_preference</string>
