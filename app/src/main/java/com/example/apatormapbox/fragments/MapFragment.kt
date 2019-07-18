@@ -4,6 +4,7 @@ package com.example.apatormapbox.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -31,9 +32,14 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observer<List<StationBasicEntity>> {
 
+    companion object {
+        private const val STATION_POINTS_LAYER = "STATION_POINTS"
+    }
+
     private lateinit var mapView: MapView
     private val solarViewModel: SolarViewModel by viewModel()
     private val geoJsonSource = GeoJsonSource("SOURCE_ID")
+    private lateinit var mapboxMap: MapboxMap
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -74,6 +80,16 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
+        this.mapboxMap = mapboxMap
+        mapboxMap.addOnMapClickListener {
+            val touchPoint = mapboxMap.projection.toScreenLocation(it)
+            val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
+            if (features.isNotEmpty()) {
+                val selectedFeature = features[0]
+                Toast.makeText(context, selectedFeature.getStringProperty("title"), Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
         val markerBitmap =
             DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
         mapboxMap.setStyle(
@@ -81,7 +97,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
                 .withLayer(
-                    SymbolLayer("LAYER_ID", "SOURCE_ID")
+                    SymbolLayer(STATION_POINTS_LAYER, "SOURCE_ID")
                         .withProperties(
                             PropertyFactory.iconImage("ICON_ID"),
                             iconAllowOverlap(true),
