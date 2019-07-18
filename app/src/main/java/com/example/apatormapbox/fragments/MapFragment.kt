@@ -62,8 +62,6 @@ class MapFragment : Fragment(), View.OnClickListener {
                     }
                 }
             }
-
-
         }
         mapView.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
