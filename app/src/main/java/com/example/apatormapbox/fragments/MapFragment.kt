@@ -1,7 +1,6 @@
 package com.example.apatormapbox.fragments
 
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -12,6 +11,7 @@ import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.DrawableToBitmap
+import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
@@ -29,18 +29,20 @@ import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
-class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
+class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observer<List<StationBasicEntity>> {
 
     private lateinit var mapView: MapView
-    private lateinit var markerBitmap: Bitmap
     private val solarViewModel: SolarViewModel by viewModel()
     private val geoJsonSource = GeoJsonSource("SOURCE_ID")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         view.locate_device_btn.setOnClickListener(this)
+        mapView = view.mapView
 
+        //PRZYGOTOWANIE TOOLBARA
         (activity as MainActivity).apply {
+            setHasOptionsMenu(true)
             setSupportActionBar(view.mapToolbar)
             supportActionBar.apply {
                 this?.setHomeAsUpIndicator(R.drawable.ic_settings)
@@ -48,46 +50,43 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
             }
         }
 
-        markerBitmap =
-            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
-
-        mapView = view.mapView
-
         mapView.apply {
             getMapAsync(this@MapFragment)
             onCreate(savedInstanceState)
         }
 
         solarViewModel.fetchStationsFromDb()
-        solarViewModel.stations.observe(this, Observer { stationBasicEntities ->
-            //Log.d("pobrano stacje", it.toString())
-            val symbols = ArrayList<Feature>()
-            stationBasicEntities.forEach {
-                symbols.add(Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!)))
-            }
-            geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
-        })
+        solarViewModel.stations.observe(this, this)
 
-        setHasOptionsMenu(true)
         return view
     }
 
+    /*
+     * ON DATA CHANGE
+     */
+    override fun onChanged(stationBasicEntities: List<StationBasicEntity>) {
+        //Log.d("pobrano stacje", it.toString())
+        val symbols = ArrayList<Feature>()
+        stationBasicEntities.forEach {
+            symbols.add(Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!)))
+        }
+        geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
+    }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
+        val markerBitmap =
+            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
-                .withSource(
-                    geoJsonSource
-                )
-                .withImage(
-                    "ICON_ID", markerBitmap
-                )
+                .withSource(geoJsonSource)
+                .withImage("ICON_ID", markerBitmap)
                 .withLayer(
                     SymbolLayer("LAYER_ID", "SOURCE_ID")
                         .withProperties(
-                        PropertyFactory.iconImage("ICON_ID"),
-                        iconAllowOverlap(true),
-                        iconOffset(arrayOf(0f, -9f))
-                    )
+                            PropertyFactory.iconImage("ICON_ID"),
+                            iconAllowOverlap(true),
+                            iconOffset(arrayOf(0f, -9f))
+                        )
                 )
         )
     }

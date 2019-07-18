@@ -1,12 +1,12 @@
 package com.example.apatormapbox.mappers
 
-import com.example.apatormapbox.models.dbentities.StationEntity
+import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import com.example.apatormapbox.models.stationdetails.StationDetails
 
 object JsonToStationEntity {
-    fun map(sd: StationDetails): StationEntity {
-        return StationEntity(
-            //id = sd.id,
+    fun map(sd: StationDetails): StationDetailsEntity {
+        return StationDetailsEntity(
+            id = sd.inputs?.fileId,
             lat = sd.stationInfo?.lat,
             lon = sd.stationInfo?.lon,
             elev = sd.stationInfo?.elev,

@@ -5,10 +5,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
+import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 
 @Dao
 interface StationDao {
-
+    //STATIONS BASIC INFO
     @Query("SELECT * FROM station_basic")
     fun getAllAStations(): List<StationBasicEntity>
 
@@ -17,4 +18,11 @@ interface StationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAllStations(vararg stations: StationBasicEntity)
+
+    //STATION DETAILS
+    @Query("SELECT * FROM station_details WHERE id=:id")
+    fun getStationDetails(id: String): StationDetailsEntity
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insertStationDetails(details: StationDetailsEntity)
 }
