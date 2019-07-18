@@ -3,7 +3,7 @@ package com.example.apatormapbox.models.stationdetails
 
 import com.google.gson.annotations.SerializedName
 
-data class Solar(
+data class StationDetails(
     @SerializedName("errors")
     val errors: List<Any?>?,
     @SerializedName("inputs")
