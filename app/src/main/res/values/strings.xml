@@ -20,4 +20,8 @@
     <string name="SolarRF_textView_PF">Filename: </string>
     <string name="Distance_textView_PF">Distance: </string>
     <string name="value">value</string>
+    <string name="cancel_btn_CL">Cancel</string>
+    <string name="change_btn_CL">Change</string>
+    <string name="latitude_CL">Latitude</string>
+    <string name="longitude_CL">Longitude</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.apatormapbox.fragments
 
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -10,6 +12,7 @@ import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
+import kotlinx.android.synthetic.main.change_localization.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
 class MapFragment : Fragment(), View.OnClickListener {
@@ -31,6 +34,9 @@ class MapFragment : Fragment(), View.OnClickListener {
         mapView = view.mapView.apply {
             getMapAsync {
                 it.setStyle(Style.MAPBOX_STREETS)
+            }
+            setOnClickListener{
+
             }
         }
         mapView.onCreate(savedInstanceState)
@@ -62,6 +68,24 @@ class MapFragment : Fragment(), View.OnClickListener {
             }
             R.id.sync -> {
                 Log.d("sync", "Synchronizacja")
+
+//                // Implementacja okna dialogowego
+//                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
+//                val mBuilder = AlertDialog.Builder(context)
+//                    .setView(mDialogView)
+//                    .setTitle("Change Localization")
+//                val mAlertDialog = mBuilder.show()
+//
+//                mDialogView.change_btn_CL.setOnClickListener {
+//                    val longitude = mDialogView.longitude_CL.text.toString()
+//                    val latitude = mDialogView.latitude_CL.text.toString()
+//                    mAlertDialog.dismiss()
+//                }
+//                mDialogView.cancel_btn_CL.setOnClickListener {
+//                    mAlertDialog.dismiss()
+//                }
+
+
                 //TODO wykonaj synchronizację
                 false
             }
