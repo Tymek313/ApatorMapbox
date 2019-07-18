@@ -11,51 +11,51 @@ data class StationDetailsEntity(
     @ColumnInfo(name = "id")
     var id: String,
     @ColumnInfo(name = "lat")
-    var lat: Double? = null,
+    var lat: Double?,
     @ColumnInfo(name = "lon")
     var lon: Double?,
     @ColumnInfo(name = "elev")
-    var elev: Double?,
+    var elev: Double? = null,
     @ColumnInfo(name = "tz")
-    var tz: Int?,
+    var tz: Int? = null,
     @ColumnInfo(name = "location")
-    var location: String?,
+    var location: String? = null,
     @ColumnInfo(name = "city")
-    var city: String?,
+    var city: String? = null,
     @ColumnInfo(name = "state")
-    var state: String?,
+    var state: String? = null,
     @ColumnInfo(name = "solar_resource_file")
-    var solarResourceFile: String?,
+    var solarResourceFile: String? = null,
     @ColumnInfo(name = "distance")
-    var distance: Int?,
+    var distance: Int? = null,
     @ColumnInfo(name = "poa_monthly")
-    var poaMonthly: List<Double?>?,
+    var poaMonthly: List<Double?>? = null,
     @ColumnInfo(name = "dc_monthly")
-    var dcMonthly: List<Double?>?,
+    var dcMonthly: List<Double?>? = null,
     @ColumnInfo(name = "ac_monthly")
-    var acMonthly: List<Double?>?,
+    var acMonthly: List<Double?>? = null,
     @ColumnInfo(name = "ac_annual")
-    var acAnnual: Double?,
+    var acAnnual: Double? = null,
     @ColumnInfo(name = "solrad_monthly")
-    var solradMonthly: List<Double?>?,
+    var solradMonthly: List<Double?>? = null,
     @ColumnInfo(name = "solrad_annual")
-    var solradAnnual: Double?,
+    var solradAnnual: Double? = null,
     @ColumnInfo(name = "capacity_factor")
-    var capacityFactor: Double?,
+    var capacityFactor: Double? = null,
     @ColumnInfo(name = "ac")
-    var ac: List<Int>?,
+    var ac: List<Int>? = null,
     @ColumnInfo(name = "poa")
-    var poa: List<Int>?,
+    var poa: List<Int>? = null,
     @ColumnInfo(name = "dn")
-    var dn: List<Int>?,
+    var dn: List<Int>? = null,
     @ColumnInfo(name = "dc")
-    var dc: List<Int>?,
+    var dc: List<Int>? = null,
     @ColumnInfo(name = "df")
-    var df: List<Int>?,
+    var df: List<Int>? = null,
     @ColumnInfo(name = "tamb")
-    var tamb: List<Int>?,
+    var tamb: List<Int>? = null,
     @ColumnInfo(name = "tcell")
-    var tcell: List<Int>?,
+    var tcell: List<Int>? = null,
     @ColumnInfo(name = "wspd")
-    var wspd: List<Int>?
+    var wspd: List<Int>? = null
 )
