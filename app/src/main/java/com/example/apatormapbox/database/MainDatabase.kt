@@ -4,22 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.apatormapbox.models.dbentities.StationBasicEntity
 
-@Database(entities = arrayOf(), version = 1)
+@Database(entities = [StationBasicEntity::class], version = 1, exportSchema = false)
 abstract class MainDatabase : RoomDatabase() {
-
     companion object {
-        private lateinit var DATABASE: MainDatabase
+        private var DATABASE: MainDatabase? = null
 
-        fun getDatabase(context: Context): MainDatabase {
-            if (!::DATABASE.isInitialized) {
+        fun getDatabase(context: Context): MainDatabase? {
+            if (DATABASE == null) {
                 synchronized(MainDatabase::class.java) {
                     DATABASE = Room.databaseBuilder(context, MainDatabase::class.java, "MainDatabase")
                         .fallbackToDestructiveMigration()
                         .build()
                 }
             }
-
             return DATABASE
         }
     }

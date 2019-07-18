@@ -3,7 +3,7 @@ package com.example.apatormapbox.viewmodels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.apatormapbox.helpers.Apifactory
-import com.example.apatormapbox.models.stationdetails.Solar
+import com.example.apatormapbox.models.stationdetails.StationDetails
 import com.example.apatormapbox.models.stations.Station
 import com.example.apatormapbox.repositiories.SolarRepository
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ class SolarViewModel : ViewModel() {
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
     private val repository = SolarRepository(Apifactory.solarApi)
-    val solars = MutableLiveData<Solar>()
+    val solars = MutableLiveData<StationDetails>()
     val stations = MutableLiveData<Station>()
 
     fun fetchStations(lat: Int, lon: Int) {
