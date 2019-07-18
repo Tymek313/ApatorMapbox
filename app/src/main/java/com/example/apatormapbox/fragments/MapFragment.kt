@@ -40,7 +40,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var markerBitmap: Bitmap
     private val solarViewModel: SolarViewModel by viewModel()
-    private val symbols = ArrayList<Feature>()
+    private val geoJsonSource = GeoJsonSource("SOURCE_ID")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -54,20 +54,24 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
             }
         }
 
-        markerBitmap = drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
+        markerBitmap =
+            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
 
         mapView = view.mapView
+
+        mapView.apply {
+            getMapAsync(this@MapFragment)
+            onCreate(savedInstanceState)
+        }
 
         solarViewModel.fetchStationsFromDb()
         solarViewModel.stations.observe(this, Observer { stationBasicEntities ->
             //Log.d("pobrano stacje", it.toString())
+            val symbols = ArrayList<Feature>()
             stationBasicEntities.forEach {
                 symbols.add(Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!)))
             }
-            mapView.apply {
-                getMapAsync(this@MapFragment)
-                onCreate(savedInstanceState)
-            }
+            geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
         })
 
         setHasOptionsMenu(true)
@@ -78,10 +82,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(
-                    GeoJsonSource(
-                        "SOURCE_ID",
-                        FeatureCollection.fromFeatures(symbols)
-                    )
+                    geoJsonSource
                 )
                 .withImage(
                     "ICON_ID", markerBitmap
@@ -94,10 +95,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
                         iconOffset(arrayOf(0f, -9f))
                     )
                 )
-
-        )/* { style ->
-                    //val symbolManager = SymbolManager(this, mapboxMap, style)
-                }*/
+        )
     }
 
     override fun onClick(view: View?) {
@@ -122,6 +120,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback {
             }
             R.id.sync -> {
                 Log.d("sync", "Synchronizacja")
+                solarViewModel.fetchStationsFromApi(40, -105)
+                true
 
 //                // Implementacja okna dialogowego
 //                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
