@@ -1,7 +1,6 @@
 package com.example.apatormapbox.fragments
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -26,7 +25,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -43,8 +41,7 @@ import org.koin.android.viewmodel.ext.android.viewModel
 class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observer<List<StationBasicEntity>> {
 
     private lateinit var mapView: MapView
-    private lateinit var mapboxMap: MapboxMap
-    private lateinit var position: CameraPosition
+    private lateinit var map: MapboxMap
     private val solarViewModel: SolarViewModel by viewModel()
     private val geoJsonSource = GeoJsonSource("SOURCE_ID")
 
@@ -88,11 +85,11 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(mapboxMap: MapboxMap) {
-        this.mapboxMap = mapboxMap
+        map = mapboxMap
         // wyswietlenie markera pkt. stacji na mapie
         val markerBitmap =
             DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
-        mapboxMap.setStyle(
+        map.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
@@ -112,35 +109,37 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                     .trackingGesturesManagement(true)
                     .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapboxGreen))
                     .build()
-                if (mapboxMap.style != null) {
+                if (map.style != null) {
                     val locationComponentActivationOptions =
                         LocationComponentActivationOptions.builder(this.context!!, style)
                             .locationComponentOptions(customLocationComponentOptions)
                             .build()
-                    mapboxMap.locationComponent.apply {
+                    map.locationComponent.apply {
                         activateLocationComponent(locationComponentActivationOptions)
                         isLocationComponentEnabled = true
                         cameraMode = CameraMode.TRACKING
                         renderMode = RenderMode.COMPASS
                     }
                 }
-                // wyciagniecie lokalizacji urzytkownika i zmapowanie na CameraPosition oraz przypisanie do zmiennej lokalnej
-                val location = mapboxMap.locationComponent.lastKnownLocation!!
-                position = CameraPosition.Builder()
-                    .target(LatLng(location.latitude, location.longitude))
-                    .zoom(10.0)
-                    .tilt(20.0)
-                    .build()
             }
         }
     }
 
     override fun onClick(view: View?) {
         when (view?.id) {
+            // przycisk lokalizacji, ustawienie kamery na aktualnej lokalizacji
+            // pobieram lokalizacje do location ->
+            // nastepnie mapuje ja na CameraPosition ->
+            // i ustawiam pozycje kamery na aktualna lokalizacje
             R.id.locate_device_btn -> {
-                Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 10)
-                //TODO zlokalizuj użytkownika
+                //Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
+                val location = map.locationComponent.lastKnownLocation!!
+                val position = CameraPosition.Builder()
+                    .target(LatLng(location.latitude, location.longitude))
+                    .zoom(7.0)
+                    .tilt(00.0)
+                    .build()
+                map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
             }
         }
     }
