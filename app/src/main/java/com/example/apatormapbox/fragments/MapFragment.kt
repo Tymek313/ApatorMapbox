@@ -1,6 +1,7 @@
 package com.example.apatormapbox.fragments
 
 import android.annotation.SuppressLint
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -18,9 +19,11 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
 import kotlinx.android.synthetic.main.fragment_map.view.*
 
-class MapFragment : Fragment(), View.OnClickListener{
+class MapFragment : Fragment(), View.OnClickListener {
 
     private lateinit var mapView: MapView
+    private lateinit var location: Location
+
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -37,36 +40,32 @@ class MapFragment : Fragment(), View.OnClickListener{
 
         mapView = view.mapView.apply {
             getMapAsync {
-                it.setStyle(Style.MAPBOX_STREETS){
-                    style ->
-                    if (PermissionsManager.areLocationPermissionsGranted(view.context)){
-                    val customLocationComponentOptions = LocationComponentOptions.builder(view.context)
-                        .trackingGesturesManagement(true)
-                        .accuracyColor(ContextCompat.getColor(view.context, R.color.mapboxGreen))
-                        .build()
-                    if(it.style != null){
-                        val locationComponentActivationOptions = LocationComponentActivationOptions.builder(view.context, style)
-                            .locationComponentOptions(customLocationComponentOptions)
+                it.setStyle(Style.MAPBOX_STREETS) { style ->
+                    if (PermissionsManager.areLocationPermissionsGranted(view.context)) {
+                        val customLocationComponentOptions = LocationComponentOptions.builder(view.context)
+                            .trackingGesturesManagement(true)
+                            .accuracyColor(ContextCompat.getColor(view.context, R.color.mapboxGreen))
                             .build()
-                        it.locationComponent.apply {
-                            activateLocationComponent(locationComponentActivationOptions)
-                            isLocationComponentEnabled = true
-                            cameraMode = CameraMode.TRACKING
-                            renderMode = RenderMode.COMPASS
+                        if (it.style != null) {
+                            val locationComponentActivationOptions =
+                                LocationComponentActivationOptions.builder(view.context, style)
+                                    .locationComponentOptions(customLocationComponentOptions)
+                                    .build()
+                            it.locationComponent.apply {
+                                activateLocationComponent(locationComponentActivationOptions)
+                                isLocationComponentEnabled = true
+                                cameraMode = CameraMode.TRACKING
+                                renderMode = RenderMode.COMPASS
+                            }
                         }
+                        location = it.locationComponent.lastKnownLocation!!
                     }
                 }
-
-
             }
-        }
-
-
 
 
         }
         mapView.onCreate(savedInstanceState)
-
         setHasOptionsMenu(true)
         return view
     }
