@@ -7,7 +7,7 @@ object SetPassportDate{
     fun setDataPoa(value: List<Double?>?) : ArrayList<DataEntry>{
         val dataPoa = arrayListOf<DataEntry>().also {
             for(i in 0..11){
-                it.add(ValueDataEntry("$${i + 1}", value!![i]))
+                it.add(ValueDataEntry("${i + 1}", value!![i]))
             }
         }
         return dataPoa
@@ -15,7 +15,7 @@ object SetPassportDate{
     fun setDataDC(value: List<Double?>?) : ArrayList<DataEntry> {
         val dataDC = arrayListOf<DataEntry>().also {
             for(i in 0..11){
-                it.add(ValueDataEntry("$${i + 1}", value!![i]))
+                it.add(ValueDataEntry("${i + 1}", value!![i]))
             }
         }
         return dataDC
@@ -23,7 +23,7 @@ object SetPassportDate{
     fun setDataAC(value: List<Double?>?) : ArrayList<DataEntry> {
         val dataAC = arrayListOf<DataEntry>().also {
             for(i in 0..11){
-                it.add(ValueDataEntry("$${i + 1}", value!![i]))
+                it.add(ValueDataEntry("${i + 1}", value!![i]))
             }
         }
         return dataAC
