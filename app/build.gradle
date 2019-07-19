@@ -45,6 +45,11 @@ dependencies {
     repositories {
         mavenCentral()
     }
+
+    implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.41.0'
+
+
     def moshiVersion="1.8.0"
     def retrofit2_version = "2.5.0"
     def okhttp3_version = "3.12.0"

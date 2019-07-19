@@ -3,11 +3,10 @@
     <string name="mapbox_access_token">
         pk.eyJ1IjoiYXBhdG9ybWFwYm94IiwiYSI6ImNqeTQ5OXlsZjE0anIzY21xb3Nsb2tubTgifQ.c4_iQgT_fg0-ZwhwMrKroQ
     </string>
-    <!--Preference keys-->
+
     <string name="sync_preference">sync_preference</string>
     <string name="api_key_preference">api_key_preference</string>
     <string name="time_window_preference">time_window_preference</string>
-    <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
     <string name="back_btn_PF">BACK</string>
 
     <string name="lat_textView_PF">Latitude: </string>
@@ -24,4 +23,5 @@
     <string name="change_btn_CL">Change</string>
     <string name="latitude_CL">Latitude</string>
     <string name="longitude_CL">Longitude</string>
+    <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
 </resources>

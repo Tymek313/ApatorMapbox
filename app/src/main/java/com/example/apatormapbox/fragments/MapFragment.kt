@@ -1,28 +1,30 @@
 package com.example.apatormapbox.fragments
 
-
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.example.apatormapbox.helpers.DrawableToBitmap
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -32,7 +34,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.android.synthetic.main.change_localization.view.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -113,14 +114,45 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        )
+        ){ style ->
+            // logika wyswietlenia markera z aktualna lokalizacja
+            // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
+            if (PermissionsManager.areLocationPermissionsGranted(this.context)) {
+                val customLocationComponentOptions = LocationComponentOptions.builder(this.context!!)
+                    .trackingGesturesManagement(true)
+                    .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapboxGreen))
+                    .build()
+                if (mapboxMap.style != null) {
+                    val locationComponentActivationOptions =
+                        LocationComponentActivationOptions.builder(this.context!!, style)
+                            .locationComponentOptions(customLocationComponentOptions)
+                            .build()
+                    mapboxMap.locationComponent.apply {
+                        activateLocationComponent(locationComponentActivationOptions)
+                        isLocationComponentEnabled = true
+                        cameraMode = CameraMode.TRACKING
+                        renderMode = RenderMode.COMPASS
+                    }
+                }
+            }
+        }
     }
 
     override fun onClick(view: View?) {
         when (view?.id) {
+            // przycisk lokalizacji, ustawienie kamery na aktualnej lokalizacji
+            // pobieram lokalizacje do location ->
+            // nastepnie mapuje ja na CameraPosition ->
+            // i ustawiam pozycje kamery na aktualna lokalizacje
             R.id.locate_device_btn -> {
-                Log.d("locate", "Lokalizacja")
-                //TODO zlokalizuj użytkownika
+                //Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
+                val location = mapboxMap.locationComponent.lastKnownLocation!!
+                val position = CameraPosition.Builder()
+                    .target(LatLng(location.latitude, location.longitude))
+                    .zoom(7.0)
+                    .tilt(00.0)
+                    .build()
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
             }
         }
     }
@@ -141,7 +173,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                 solarViewModel.fetchStationsFromApi(40, -105)
                 true
 
-//                // Implementacja okna dialogowego
+//                // Implementacja okna dialogowego - zmiana planow
 //                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
 //                val mBuilder = AlertDialog.Builder(context)
 //                    .setView(mDialogView)
@@ -157,9 +189,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
 //                    mAlertDialog.dismiss()
 //                }
 
-
-                //TODO wykonaj synchronizację
-                false
+                solarViewModel.fetchStationsFromApi(40, -105)
+                true
             }
             else -> super.onOptionsItemSelected(item)
         }
