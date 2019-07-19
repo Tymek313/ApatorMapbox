@@ -3,28 +3,28 @@ package com.example.apatormapbox.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.core.content.ContextCompat
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
-import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.example.apatormapbox.helpers.DrawableToBitmap
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -120,7 +120,7 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
             if (PermissionsManager.areLocationPermissionsGranted(this.context)) {
                 val customLocationComponentOptions = LocationComponentOptions.builder(this.context!!)
                     .trackingGesturesManagement(true)
-                    .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapboxGreen))
+                    .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapbox_gray))
                     .build()
                 if (mapboxMap.style != null) {
                     val locationComponentActivationOptions =
