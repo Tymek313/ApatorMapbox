@@ -116,14 +116,14 @@ class MapFragment : Fragment() {
         if(latMarker != null || lonMarker != null){
             val position = CameraPosition.Builder()
                 .target(LatLng(latMarker!!, lonMarker!!))
-                .zoom(15.0)
+                .zoom(6.0)
                 .tilt(00.0)
                 .build()
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
         }else{
             val position = CameraPosition.Builder()
-                .target(LatLng(25.0, 25.0))
-                .zoom(10.0)
+                .target(LatLng(90.0, -100.0))
+                .zoom(0.0)
                 .tilt(00.0)
                 .build()
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
