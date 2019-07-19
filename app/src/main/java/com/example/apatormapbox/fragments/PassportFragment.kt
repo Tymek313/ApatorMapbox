@@ -2,20 +2,16 @@ package com.example.apatormapbox.fragments
 
 
 import android.os.Bundle
-import android.renderscript.Sampler
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.anychart.APIlib
 import com.anychart.AnyChart
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
-
 import com.example.apatormapbox.R
-import com.example.apatormapbox.model.Outputs
-import com.example.apatormapbox.model.StationInfo
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 
 class PassportFragment : Fragment() {
@@ -65,17 +61,17 @@ class PassportFragment : Fragment() {
         //przygotowane wczytanie danych i wyswietlnie danych --->
         //////////////////////////////////////////////////////////////////////////////////////////
         // sekcja ustawienia value - okno tekstu z wartosciami -->
-        view.distance_value_PF.setText(distance.toString())
-        view.state_value_PF.setText(state)
-        view.city_value_PF.setText(city)
-        view.location_value_PF.setText(location)
-        view.tz_value_PF.setText(tz.toString())
-        view.elev_value_PF.setText(elev.toString())
-        view.lon_value_PF.setText(lon.toString())
-        view.lat_value_PF.setText(lat.toString())
-        view.ac_annual_value_PF.setText(acAnnual.toString())
-        view.solrad_annual_value_PF.setText(solradAnnual.toString())
-        view.capacity_factor_value_PF.setText(capacityFactor.toString())
+        view.distance_value_PF.text = distance.toString()
+        view.state_value_PF.text = state
+        view.city_value_PF.text = city
+        view.location_value_PF.text = location
+        view.tz_value_PF.text = tz.toString()
+        view.elev_value_PF.text = elev.toString()
+        view.lon_value_PF.text = lon.toString()
+        view.lat_value_PF.text = lat.toString()
+        view.ac_annual_value_PF.text = acAnnual.toString()
+        view.solrad_annual_value_PF.text = solradAnnual.toString()
+        view.capacity_factor_value_PF.text = capacityFactor.toString()
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // sekcja wykresow -->
