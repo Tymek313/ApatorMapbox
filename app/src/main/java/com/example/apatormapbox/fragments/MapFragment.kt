@@ -97,16 +97,23 @@ class MapFragment : Fragment() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
+    fun onMarkerClick(point: LatLng): Boolean {
+        val touchPoint = mapboxMap.projection.toScreenLocation(point)
+        val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
+        if (features.isNotEmpty()) {
+            val selectedFeature = features[0]
+            val bundle = Bundle()
+            bundle.putString("stationId", selectedFeature.getStringProperty("id"))
+            Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
+            //Toast.makeText(context, selectedFeature.getStringProperty("id"), Toast.LENGTH_SHORT).show()
+        }
+        return true
+    }
+
     fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         mapboxMap.addOnMapClickListener {
-            val touchPoint = mapboxMap.projection.toScreenLocation(it)
-            val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
-            if (features.isNotEmpty()) {
-                val selectedFeature = features[0]
-                Toast.makeText(context, selectedFeature.getStringProperty("id"), Toast.LENGTH_SHORT).show()
-            }
-            true
+            onMarkerClick(it)
         }
         val markerBitmap =
             DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
