@@ -1,6 +1,7 @@
 package com.example.apatormapbox.fragments
 
 import android.annotation.SuppressLint
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +14,9 @@ import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
+import com.example.apatormapbox.helpers.AppConstants
 import com.example.apatormapbox.helpers.DrawableToBitmap
+import com.example.apatormapbox.helpers.Permissions
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -52,6 +55,13 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+        Permissions.handlePermission(
+            this,
+            context!!,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            AppConstants.PermissionConstants.LOCATION_PERMISSION.value
+        )
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
@@ -133,6 +143,32 @@ class MapFragment : Fragment() {
         ) { style -> onStyleLoaded(style) }
     }
 
+    @SuppressWarnings("MissingPermission")
+    private fun enableLocationComponent(loadedMapStyle: Style) {
+        // Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(context!!)) {
+
+            // Get an instance of the component
+            val locationComponent = mapboxMap.locationComponent
+
+            // Activate with options
+            locationComponent.activateLocationComponent(
+                LocationComponentActivationOptions.builder(context!!, loadedMapStyle).build()
+            )
+
+            // Enable to make component visible
+            locationComponent.isLocationComponentEnabled = true
+/*
+            // Set the component's camera mode
+            locationComponent.caomeraM(CameraMode.TRACKING);
+
+            // Set the component's render mode
+            locationComponent.renderMode = RenderMode.COMPASS*/
+        } else {
+
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (grantResults.isEmpty()) {
             permissionRejected()
@@ -140,7 +176,9 @@ class MapFragment : Fragment() {
 
         when (grantResults[0]) {
             PackageManager.PERMISSION_DENIED -> permissionRejected()
-            PackageManager.PERMISSION_GRANTED -> mapView.invalidate()
+            PackageManager.PERMISSION_GRANTED -> mapboxMap.getStyle {
+                enableLocationComponent(it)
+            }
         }
     }
 

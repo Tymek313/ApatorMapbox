@@ -1,18 +1,19 @@
 package com.example.apatormapbox.helpers
 
-import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 
 object Permissions {
 
-    fun handlePermission(activity: Activity, permission: String, requestCode: Int) {
-        if (ActivityCompat.checkSelfPermission(
-                activity.baseContext!!,
+    fun handlePermission(fragment: Fragment, context: Context, permission: String, requestCode: Int) {
+        if (ContextCompat.checkSelfPermission(
+                context,
                 permission
             ) == PackageManager.PERMISSION_DENIED
         ) {
-            ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
+            fragment.requestPermissions(arrayOf(permission), requestCode)
         }
     }
 }
