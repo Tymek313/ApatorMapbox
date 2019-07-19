@@ -24,8 +24,10 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdate
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -38,6 +40,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.android.synthetic.main.change_localization.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -52,9 +55,17 @@ class MapFragment : Fragment() {
     private val solarViewModel: SolarViewModel by viewModel()
     private val geoJsonSource = GeoJsonSource("SOURCE_ID")
     private lateinit var mapboxMap: MapboxMap
+    var latMarker: Double? = null
+    var lonMarker: Double? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+        if(arguments != null){
+            latMarker = arguments!!.getDouble("lat")
+            lonMarker = arguments!!.getDouble("lon")
+            Log.d("MapFragment: ", "$latMarker")
+            Log.d("MapFragment: ", "$lonMarker")
+        }
 
         Permissions.handlePermission(
             this,
@@ -62,6 +73,7 @@ class MapFragment : Fragment() {
             Manifest.permission.ACCESS_FINE_LOCATION,
             AppConstants.PermissionConstants.LOCATION_PERMISSION.value
         )
+
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
@@ -82,9 +94,12 @@ class MapFragment : Fragment() {
         mapView.apply {
             getMapAsync {
                 onMapReady(it)
+                onMapClick()
             }
             onCreate(savedInstanceState)
         }
+
+
 
         solarViewModel.fetchStationsFromDb()
         solarViewModel.stations.observe(this, Observer {
@@ -97,6 +112,23 @@ class MapFragment : Fragment() {
     /*
      * ON DATA CHANGE
      */
+    fun onMapClick(){
+        if(latMarker != null || lonMarker != null){
+            val position = CameraPosition.Builder()
+                .target(LatLng(latMarker!!, lonMarker!!))
+                .zoom(15.0)
+                .tilt(00.0)
+                .build()
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+        }else{
+            val position = CameraPosition.Builder()
+                .target(LatLng(25.0, 25.0))
+                .zoom(10.0)
+                .tilt(00.0)
+                .build()
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+        }
+    }
     fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         //Log.d("pobrano stacje", it.toString())
         val symbols = ArrayList<Feature>()
@@ -204,8 +236,6 @@ class MapFragment : Fragment() {
                 mapboxMap.locationComponent.apply {
                     activateLocationComponent(locationComponentActivationOptions)
                     isLocationComponentEnabled = true
-                    cameraMode = CameraMode.TRACKING
-                    renderMode = RenderMode.COMPASS
                 }
             }
         }
@@ -222,7 +252,7 @@ class MapFragment : Fragment() {
                 val location = mapboxMap.locationComponent.lastKnownLocation!!
                 val position = CameraPosition.Builder()
                     .target(LatLng(location.latitude, location.longitude))
-                    .zoom(7.0)
+                    .zoom(6.0)
                     .tilt(00.0)
                     .build()
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)

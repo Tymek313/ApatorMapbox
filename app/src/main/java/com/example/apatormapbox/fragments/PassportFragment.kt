@@ -28,18 +28,22 @@ class PassportFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_paszport, container, false)
+        var stationDetailsEntity: StationDetailsEntity = StationDetailsEntity("0",0.0,0.0)
         // zmieniaj tutaj! - chwilowe dane testowe... - najlepiej nadac inna wartosc stałym aby nie grzebać w kodzie
 
         // Pobranie ID z bundle oraz zainicjowanie bazy danych -->
         val id = arguments!!.getString("stationId")
         solarViewModel.fetchStationDetails(id!!)
         solarViewModel.stationDetails.observe(this, Observer {
+            stationDetailsEntity = it
             refViews(it,view)
         })
 
         // Powrot do mapy...
         view.back_btn_PF.setOnClickListener {
             val bundle = Bundle()
+            bundle.putDouble("lat",stationDetailsEntity.lat!!)
+            bundle.putDouble("lon",stationDetailsEntity.lon!!)
             Navigation.findNavController(view).navigate(R.id.action_paszportFragment_to_mapFragment, bundle)
         }
 
