@@ -52,12 +52,20 @@ class MapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private val solarViewModel: SolarViewModel by viewModel()
-    private val geoJsonSource = GeoJsonSource("SOURCE_ID")
+    private lateinit var geoJsonSource: GeoJsonSource
     private lateinit var mapboxMap: MapboxMap
+    private lateinit var observer: Observer<List<StationBasicEntity>>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        solarViewModel.stations.observe(this, Observer {
+            onDataChanged(it)
+        })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
-
+        geoJsonSource = GeoJsonSource("SOURCE_ID")
         PermissionsHelper.handlePermission(
             this,
             context!!,
@@ -67,7 +75,6 @@ class MapFragment : Fragment() {
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
-        mapView = view.mapView
 
         //PRZYGOTOWANIE TOOLBARA
         (activity as MainActivity).apply {
@@ -79,9 +86,7 @@ class MapFragment : Fragment() {
             }
         }
 
-        mapView = view.mapView
-
-        mapView.apply {
+        mapView = view.mapView.apply {
             getMapAsync {
                 onMapReady(it)
             }
@@ -89,10 +94,6 @@ class MapFragment : Fragment() {
         }
 
         solarViewModel.fetchStationsFromDb()
-        solarViewModel.stations.observe(this, Observer {
-            onDataChanged(it)
-        })
-
         return view
     }
 
@@ -148,7 +149,9 @@ class MapFragment : Fragment() {
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        ) { style -> onStyleLoaded(style) }
+        ) { style ->
+            onStyleLoaded(style)
+        }
     }
 
     @SuppressWarnings("MissingPermission")
@@ -261,24 +264,20 @@ class MapFragment : Fragment() {
     }
 
     //Cykle życia Mapbox
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+    }
+
     override fun onResume() {
         super.onResume()
         mapView.onResume()
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
-    }
-
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        //solarViewModel.stations.removeObservers(this)
     }
 
     override fun onStop() {
@@ -286,8 +285,18 @@ class MapFragment : Fragment() {
         mapView.onStop()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         mapView.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 }
