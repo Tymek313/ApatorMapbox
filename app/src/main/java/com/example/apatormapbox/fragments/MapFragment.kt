@@ -1,5 +1,6 @@
 package com.example.apatormapbox.fragments
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -27,7 +28,6 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
@@ -38,7 +38,7 @@ import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
-class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observer<List<StationBasicEntity>> {
+class MapFragment : Fragment() {
 
     companion object {
         private const val STATION_POINTS_LAYER = "STATION_POINTS"
@@ -51,7 +51,9 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
-        view.locate_device_btn.setOnClickListener(this)
+        view.locate_device_btn.setOnClickListener {
+            onLocationBtnClick(it)
+        }
         mapView = view.mapView
 
         //PRZYGOTOWANIE TOOLBARA
@@ -67,12 +69,16 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
         mapView = view.mapView
 
         mapView.apply {
-            getMapAsync(this@MapFragment)
+            getMapAsync {
+                onMapReady(it)
+            }
             onCreate(savedInstanceState)
         }
 
         solarViewModel.fetchStationsFromDb()
-        solarViewModel.stations.observe(this, this)
+        solarViewModel.stations.observe(this, Observer {
+            onDataChanged(it)
+        })
 
         return view
     }
@@ -80,23 +86,25 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
     /*
      * ON DATA CHANGE
      */
-    override fun onChanged(stationBasicEntities: List<StationBasicEntity>) {
+    fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         //Log.d("pobrano stacje", it.toString())
         val symbols = ArrayList<Feature>()
         stationBasicEntities.forEach {
-            symbols.add(Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!)))
+            val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
+            feature.addStringProperty("id", it.id)
+            symbols.add(feature)
         }
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
-    override fun onMapReady(mapboxMap: MapboxMap) {
+    fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         mapboxMap.addOnMapClickListener {
             val touchPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
             if (features.isNotEmpty()) {
                 val selectedFeature = features[0]
-                Toast.makeText(context, selectedFeature.getStringProperty("title"), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, selectedFeature.getStringProperty("id"), Toast.LENGTH_SHORT).show()
             }
             true
         }
@@ -114,31 +122,49 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        ){ style ->
-            // logika wyswietlenia markera z aktualna lokalizacja
-            // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
-            if (PermissionsManager.areLocationPermissionsGranted(this.context)) {
-                val customLocationComponentOptions = LocationComponentOptions.builder(this.context!!)
-                    .trackingGesturesManagement(true)
-                    .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapbox_gray))
-                    .build()
-                if (mapboxMap.style != null) {
-                    val locationComponentActivationOptions =
-                        LocationComponentActivationOptions.builder(this.context!!, style)
-                            .locationComponentOptions(customLocationComponentOptions)
-                            .build()
-                    mapboxMap.locationComponent.apply {
-                        activateLocationComponent(locationComponentActivationOptions)
-                        isLocationComponentEnabled = true
-                        cameraMode = CameraMode.TRACKING
-                        renderMode = RenderMode.COMPASS
-                    }
+        ) { style -> onStyleLoaded(style) }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (grantResults.isEmpty()) {
+            permissionRejected()
+        }
+
+        when (grantResults[0]) {
+            PackageManager.PERMISSION_DENIED -> permissionRejected()
+            PackageManager.PERMISSION_GRANTED -> mapView.invalidate()
+        }
+    }
+
+    fun permissionRejected() {
+        Toast.makeText(context, "Localisation permissions are necessary", Toast.LENGTH_SHORT).show()
+        activity!!.finish()
+    }
+
+    fun onStyleLoaded(style: Style) {
+        // logika wyswietlenia markera z aktualna lokalizacja
+        // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
+        if (PermissionsManager.areLocationPermissionsGranted(context)) {
+            val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
+                .trackingGesturesManagement(true)
+                .accuracyColor(ContextCompat.getColor(context!!, R.color.mapbox_gray))
+                .build()
+            if (mapboxMap.style != null) {
+                val locationComponentActivationOptions =
+                    LocationComponentActivationOptions.builder(context!!, style)
+                        .locationComponentOptions(customLocationComponentOptions)
+                        .build()
+                mapboxMap.locationComponent.apply {
+                    activateLocationComponent(locationComponentActivationOptions)
+                    isLocationComponentEnabled = true
+                    cameraMode = CameraMode.TRACKING
+                    renderMode = RenderMode.COMPASS
                 }
             }
         }
     }
 
-    override fun onClick(view: View?) {
+    fun onLocationBtnClick(view: View?) {
         when (view?.id) {
             // przycisk lokalizacji, ustawienie kamery na aktualnej lokalizacji
             // pobieram lokalizacje do location ->
