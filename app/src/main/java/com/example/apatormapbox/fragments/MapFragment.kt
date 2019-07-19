@@ -198,11 +198,11 @@ class MapFragment : Fragment() {
         return when (item.itemId) {
             android.R.id.home -> {
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
-                Log.d("ustawienia", "Przejście do ustawień")
+                Log.d("Map Fragment: ", "Przejście do ustawień")
                 true
             }
             R.id.sync -> {
-                Log.d("sync", "Synchronizacja")
+                Log.d("Map Fragment: ", "Synchronizacja")
                 solarViewModel.fetchStationsFromApi(40, -105)
                 true
 
