@@ -1,7 +1,7 @@
 package com.example.apatormapbox.fragments
 
-import android.annotation.SuppressLint
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -12,11 +12,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.AppConstants
-import com.example.apatormapbox.helpers.DrawableToBitmap
-import com.example.apatormapbox.helpers.Permissions
+import com.example.apatormapbox.helpers.DateHelper
+import com.example.apatormapbox.helpers.DrawableToBitmapHelper
+import com.example.apatormapbox.helpers.PermissionsHelper
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -53,10 +55,18 @@ class MapFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private val solarViewModel: SolarViewModel by viewModel()
-    private val geoJsonSource = GeoJsonSource("SOURCE_ID")
+    private lateinit var geoJsonSource: GeoJsonSource
     private lateinit var mapboxMap: MapboxMap
     var latMarker: Double? = null
     var lonMarker: Double? = null
+    private lateinit var observer: Observer<List<StationBasicEntity>>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        solarViewModel.stations.observe(this, Observer {
+            onDataChanged(it)
+        })
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -66,8 +76,8 @@ class MapFragment : Fragment() {
             Log.d("MapFragment: ", "$latMarker")
             Log.d("MapFragment: ", "$lonMarker")
         }
-
-        Permissions.handlePermission(
+        geoJsonSource = GeoJsonSource("SOURCE_ID")
+        PermissionsHelper.handlePermission(
             this,
             context!!,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -77,7 +87,6 @@ class MapFragment : Fragment() {
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
-        mapView = view.mapView
 
         //PRZYGOTOWANIE TOOLBARA
         (activity as MainActivity).apply {
@@ -89,9 +98,7 @@ class MapFragment : Fragment() {
             }
         }
 
-        mapView = view.mapView
-
-        mapView.apply {
+        mapView = view.mapView.apply {
             getMapAsync {
                 onMapReady(it)
                 onMapClick()
@@ -102,10 +109,6 @@ class MapFragment : Fragment() {
 
 
         solarViewModel.fetchStationsFromDb()
-        solarViewModel.stations.observe(this, Observer {
-            onDataChanged(it)
-        })
-
         return view
     }
 
@@ -159,9 +162,15 @@ class MapFragment : Fragment() {
             onMarkerClick(it)
         }
         val markerBitmap =
-            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
+            DrawableToBitmapHelper.drawableToBitmap(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_marker,
+                    null
+                )!!
+            )!!
         mapboxMap.setStyle(
-            Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
+            Style.Builder().fromUrl("mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7")
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
                 .withLayer(
@@ -172,7 +181,9 @@ class MapFragment : Fragment() {
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        ) { style -> onStyleLoaded(style) }
+        ) { style ->
+            onStyleLoaded(style)
+        }
     }
 
     @SuppressWarnings("MissingPermission")
@@ -196,8 +207,6 @@ class MapFragment : Fragment() {
 
             // Set the component's render mode
             locationComponent.renderMode = RenderMode.COMPASS*/
-        } else {
-
         }
     }
 
@@ -274,25 +283,10 @@ class MapFragment : Fragment() {
             R.id.sync -> {
                 Log.d("Map Fragment: ", "Synchronizacja")
                 solarViewModel.fetchStationsFromApi(40, -105)
-                true
-
-//                // Implementacja okna dialogowego - zmiana planow
-//                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
-//                val mBuilder = AlertDialog.Builder(context)
-//                    .setView(mDialogView)
-//                    .setTitle("Change Localization")
-//                val mAlertDialog = mBuilder.show()
-//
-//                mDialogView.change_btn_CL.setOnClickListener {
-//                    val longitude = mDialogView.longitude_CL.text.toString()
-//                    val latitude = mDialogView.latitude_CL.text.toString()
-//                    mAlertDialog.dismiss()
-//                }
-//                mDialogView.cancel_btn_CL.setOnClickListener {
-//                    mAlertDialog.dismiss()
-//                }
-
-                solarViewModel.fetchStationsFromApi(40, -105)
+                PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(getString(R.string.sync_preference), DateHelper.getToday())
+                    .apply()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -300,24 +294,20 @@ class MapFragment : Fragment() {
     }
 
     //Cykle życia Mapbox
+    override fun onStart() {
+        super.onStart()
+        mapView.onStart()
+    }
+
     override fun onResume() {
         super.onResume()
         mapView.onResume()
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
-    }
-
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        //solarViewModel.stations.removeObservers(this)
     }
 
     override fun onStop() {
@@ -325,8 +315,18 @@ class MapFragment : Fragment() {
         mapView.onStop()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         mapView.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 }
