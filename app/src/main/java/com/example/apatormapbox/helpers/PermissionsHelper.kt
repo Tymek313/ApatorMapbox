@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
-object Permissions {
+object PermissionsHelper {
 
     fun handlePermission(fragment: Fragment, context: Context, permission: String, requestCode: Int) {
         if (ContextCompat.checkSelfPermission(

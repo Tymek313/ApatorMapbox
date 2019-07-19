@@ -1,7 +1,7 @@
 package com.example.apatormapbox.fragments
 
-import android.annotation.SuppressLint
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -12,11 +12,13 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.AppConstants
-import com.example.apatormapbox.helpers.DrawableToBitmap
-import com.example.apatormapbox.helpers.Permissions
+import com.example.apatormapbox.helpers.DateHelper
+import com.example.apatormapbox.helpers.DrawableToBitmapHelper
+import com.example.apatormapbox.helpers.PermissionsHelper
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -56,7 +58,7 @@ class MapFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
-        Permissions.handlePermission(
+        PermissionsHelper.handlePermission(
             this,
             context!!,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -127,7 +129,13 @@ class MapFragment : Fragment() {
             onMarkerClick(it)
         }
         val markerBitmap =
-            DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
+            DrawableToBitmapHelper.drawableToBitmap(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_marker,
+                    null
+                )!!
+            )!!
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(geoJsonSource)
@@ -164,8 +172,6 @@ class MapFragment : Fragment() {
 
             // Set the component's render mode
             locationComponent.renderMode = RenderMode.COMPASS*/
-        } else {
-
         }
     }
 
@@ -244,25 +250,10 @@ class MapFragment : Fragment() {
             R.id.sync -> {
                 Log.d("Map Fragment: ", "Synchronizacja")
                 solarViewModel.fetchStationsFromApi(40, -105)
-                true
-
-//                // Implementacja okna dialogowego - zmiana planow
-//                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
-//                val mBuilder = AlertDialog.Builder(context)
-//                    .setView(mDialogView)
-//                    .setTitle("Change Localization")
-//                val mAlertDialog = mBuilder.show()
-//
-//                mDialogView.change_btn_CL.setOnClickListener {
-//                    val longitude = mDialogView.longitude_CL.text.toString()
-//                    val latitude = mDialogView.latitude_CL.text.toString()
-//                    mAlertDialog.dismiss()
-//                }
-//                mDialogView.cancel_btn_CL.setOnClickListener {
-//                    mAlertDialog.dismiss()
-//                }
-
-                solarViewModel.fetchStationsFromApi(40, -105)
+                PreferenceManager.getDefaultSharedPreferences(context)
+                    .edit()
+                    .putString(getString(R.string.sync_preference), DateHelper.getToday())
+                    .apply()
                 true
             }
             else -> super.onOptionsItemSelected(item)

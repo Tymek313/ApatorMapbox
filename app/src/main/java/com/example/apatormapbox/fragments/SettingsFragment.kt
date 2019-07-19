@@ -2,14 +2,13 @@ package com.example.apatormapbox.fragments
 
 
 import android.content.SharedPreferences
-import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import androidx.navigation.Navigation
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
-import java.util.*
+import com.example.apatormapbox.helpers.DateHelper
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -38,8 +37,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
-                val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
-                val lastSyncInfo = "Last Synchronization: $date"
+                val lastSyncInfo = "Last Synchronization: ${DateHelper.getToday()}"
                 it.summary = lastSyncInfo
                 sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
                 true

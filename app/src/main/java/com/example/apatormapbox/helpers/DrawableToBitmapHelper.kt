@@ -5,7 +5,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 
-object DrawableToBitmap {
+object DrawableToBitmapHelper {
     fun drawableToBitmap(drawable: Drawable): Bitmap? {
         var bitmap: Bitmap? = null
 
