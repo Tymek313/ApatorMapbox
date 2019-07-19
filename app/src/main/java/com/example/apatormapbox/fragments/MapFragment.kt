@@ -1,11 +1,11 @@
 package com.example.apatormapbox.fragments
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
@@ -40,10 +40,14 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observer<List<StationBasicEntity>> {
 
+    companion object {
+        private const val STATION_POINTS_LAYER = "STATION_POINTS"
+    }
+
     private lateinit var mapView: MapView
-    private lateinit var map: MapboxMap
     private val solarViewModel: SolarViewModel by viewModel()
     private val geoJsonSource = GeoJsonSource("SOURCE_ID")
+    private lateinit var mapboxMap: MapboxMap
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
@@ -59,6 +63,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                 this?.setDisplayHomeAsUpEnabled(true)
             }
         }
+
+        mapView = view.mapView
 
         mapView.apply {
             getMapAsync(this@MapFragment)
@@ -83,25 +89,32 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
-    @SuppressLint("MissingPermission")
     override fun onMapReady(mapboxMap: MapboxMap) {
-        map = mapboxMap
-        // wyswietlenie markera pkt. stacji na mapie
+        this.mapboxMap = mapboxMap
+        mapboxMap.addOnMapClickListener {
+            val touchPoint = mapboxMap.projection.toScreenLocation(it)
+            val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
+            if (features.isNotEmpty()) {
+                val selectedFeature = features[0]
+                Toast.makeText(context, selectedFeature.getStringProperty("title"), Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
         val markerBitmap =
             DrawableToBitmap.drawableToBitmap(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, null)!!)!!
-        map.setStyle(
+        mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41")
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
                 .withLayer(
-                    SymbolLayer("LAYER_ID", "SOURCE_ID")
+                    SymbolLayer(STATION_POINTS_LAYER, "SOURCE_ID")
                         .withProperties(
                             PropertyFactory.iconImage("ICON_ID"),
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        ) { style ->
+        ){ style ->
             // logika wyswietlenia markera z aktualna lokalizacja
             // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
             if (PermissionsManager.areLocationPermissionsGranted(this.context)) {
@@ -109,12 +122,12 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
                     .trackingGesturesManagement(true)
                     .accuracyColor(ContextCompat.getColor(this.context!!, R.color.mapboxGreen))
                     .build()
-                if (map.style != null) {
+                if (mapboxMap.style != null) {
                     val locationComponentActivationOptions =
                         LocationComponentActivationOptions.builder(this.context!!, style)
                             .locationComponentOptions(customLocationComponentOptions)
                             .build()
-                    map.locationComponent.apply {
+                    mapboxMap.locationComponent.apply {
                         activateLocationComponent(locationComponentActivationOptions)
                         isLocationComponentEnabled = true
                         cameraMode = CameraMode.TRACKING
@@ -133,13 +146,13 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
             // i ustawiam pozycje kamery na aktualna lokalizacje
             R.id.locate_device_btn -> {
                 //Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
-                val location = map.locationComponent.lastKnownLocation!!
+                val location = mapboxMap.locationComponent.lastKnownLocation!!
                 val position = CameraPosition.Builder()
                     .target(LatLng(location.latitude, location.longitude))
                     .zoom(7.0)
                     .tilt(00.0)
                     .build()
-                map.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
             }
         }
     }
@@ -157,6 +170,8 @@ class MapFragment : Fragment(), View.OnClickListener, OnMapReadyCallback, Observ
             }
             R.id.sync -> {
                 Log.d("sync", "Synchronizacja")
+                solarViewModel.fetchStationsFromApi(40, -105)
+                true
 
 //                // Implementacja okna dialogowego - zmiana planow
 //                val mDialogView = LayoutInflater.from(context).inflate(R.layout.change_localization, null)
