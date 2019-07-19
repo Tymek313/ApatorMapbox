@@ -29,7 +29,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             //getString(R.string.sync_preference),
             getString(R.string.time_window_preference)
         ).forEach { setupPreference(it) }
-        findPreference("save_and_exit").apply {
+        findPreference("refresh_map").apply {
             setOnPreferenceClickListener {
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.mapFragment)
                 true

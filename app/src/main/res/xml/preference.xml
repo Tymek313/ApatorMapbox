@@ -19,8 +19,8 @@
             android:entries="@array/timeWindowLabels"
             android:entryValues="@array/timeWindowValues"/>
     <Preference
-            android:title="Save and Exit"
+            android:title="Refresh Map"
             android:icon="@drawable/ic_save"
-            android:key="save_and_exit"
+            android:key="refresh_map"
             android:summary=""/>
 </PreferenceScreen>

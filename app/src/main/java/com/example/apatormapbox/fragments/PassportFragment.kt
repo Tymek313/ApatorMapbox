@@ -14,6 +14,7 @@ import com.example.apatormapbox.R
 import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import com.example.apatormapbox.objects.SetPassportDate
 import com.example.apatormapbox.viewmodels.SolarViewModel
+import kotlinx.android.synthetic.main.change_localization.*
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -38,7 +39,8 @@ class PassportFragment : Fragment() {
 
         // Powrot do mapy...
         view.back_btn_PF.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_paszportFragment_to_mapFragment)
+            val bundle = Bundle()
+            Navigation.findNavController(view).navigate(R.id.action_paszportFragment_to_mapFragment, bundle)
         }
 
         return view
@@ -46,23 +48,23 @@ class PassportFragment : Fragment() {
 
     fun refViews(stationDetailsEntity: StationDetailsEntity, view: View){
 
-        val lat = stationDetailsEntity?.lat
-        val lon = stationDetailsEntity?.lon
-        val elev = stationDetailsEntity?.elev
-        val tz = stationDetailsEntity?.tz
+        val lat = stationDetailsEntity.lat
+        val lon = stationDetailsEntity.lon
+        val elev = stationDetailsEntity.elev
+        val tz = stationDetailsEntity.tz
         val location = stationDetailsEntity?.location
-        val city = stationDetailsEntity?.city
-        val state = stationDetailsEntity?.state
-        val distance = stationDetailsEntity?.distance
-        val acAnnual = stationDetailsEntity?.acAnnual
-        val solradAnnual = stationDetailsEntity?.solradAnnual
-        val capacityFactor = stationDetailsEntity?.capacityFactor
+        val city = stationDetailsEntity.city
+        val state = stationDetailsEntity.state
+        val distance = stationDetailsEntity.distance
+        val acAnnual = stationDetailsEntity.acAnnual
+        val solradAnnual = stationDetailsEntity.solradAnnual
+        val capacityFactor = stationDetailsEntity.capacityFactor
 
         // implementacja zmiennych data wykonuj przez objects/SetPassportDate/setData<Poa,DC,AC,SOL>
-        val dataPoa = SetPassportDate.setDataPoa(stationDetailsEntity?.poaMonthly)
-        val dataDC = SetPassportDate.setDataDC(stationDetailsEntity?.dcMonthly)
-        val dataAC = SetPassportDate.setDataAC(stationDetailsEntity?.acMonthly)
-        val dataSOL = SetPassportDate.setDataSOL(stationDetailsEntity?.solradMonthly)
+        val dataPoa = SetPassportDate.setDataPoa(stationDetailsEntity.poaMonthly)
+        val dataDC = SetPassportDate.setDataDC(stationDetailsEntity.dcMonthly)
+        val dataAC = SetPassportDate.setDataAC(stationDetailsEntity.acMonthly)
+        val dataSOL = SetPassportDate.setDataSOL(stationDetailsEntity.solradMonthly)
 
         //przygotowane wczytanie danych i wyswietlnie danych --->
         //////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 package com.example.apatormapbox.fragments
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -148,6 +149,7 @@ class MapFragment : Fragment() {
         activity!!.finish()
     }
 
+    @SuppressLint("MissingPermission")
     fun onStyleLoaded(style: Style) {
         // logika wyswietlenia markera z aktualna lokalizacja
         // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
