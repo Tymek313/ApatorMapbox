@@ -4,6 +4,7 @@ package com.example.apatormapbox.fragments
 import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import androidx.navigation.Navigation
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -28,7 +29,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             //getString(R.string.sync_preference),
             getString(R.string.time_window_preference)
         ).forEach { setupPreference(it) }
-
+        findPreference("save_and_exit").apply {
+            setOnPreferenceClickListener {
+                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.mapFragment)
+                true
+            }
+        }
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
