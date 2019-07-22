@@ -7,6 +7,7 @@ import com.example.apatormapbox.mappers.JsonToStationEntity
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import retrofit2.Response
+import timber.log.Timber
 
 class SolarRepository(private val api: SolarApi, private val stationDao: StationDao) : BaseRepository() {
 
@@ -31,6 +32,7 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
             call = {
                 val data = api.getStations(lat, lon, apiKey).await().body()
                 if (data == null) {
+                    Timber.d("APi zwróciło pustą listę")
                     Response.success(listOf())
                 } else {
                     val mappedStations = data.outputs!!.allStations!!.map { JsonToBasicStationEntity.map(it!!) }

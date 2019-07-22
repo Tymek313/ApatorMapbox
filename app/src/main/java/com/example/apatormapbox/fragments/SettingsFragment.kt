@@ -36,10 +36,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
                 if (!ConnectivityHelper.isConnectedToNetwork(context)) {
-                    Toast.makeText(context, "Brak połączenia z internetem", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
                 } else {
                     solarViewModel.fetchAllStationsFromApi()
-                    val lastSyncInfo = "Ostatnia synchornizacja: ${DateHelper.getToday()}"
+                    val lastSyncInfo = "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
                     it.summary = lastSyncInfo
                     sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
                 }

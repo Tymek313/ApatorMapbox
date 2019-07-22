@@ -23,5 +23,14 @@
     <string name="change_btn_CL">Change</string>
     <string name="latitude_CL">Latitude</string>
     <string name="longitude_CL">Longitude</string>
-    <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
+    <!--
+        <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
+    -->
+    <string name="synchronization">Synchronization</string>
+    <string name="solar_api_key">Solar API key</string>
+    <string name="time_window">Time Window</string>
+    <!--Toast-->
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="localisation_permissions_are_necessary">Localisation permission are necessary</string>
+    <string name="last_sync">Last synchronization</string>
 </resources>

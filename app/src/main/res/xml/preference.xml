@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <Preference
-            android:title="Synchronization"
+            android:title="@string/synchronization"
             android:icon="@drawable/ic_sync"
             android:key="@string/sync_preference"
             android:summary="Last Synchronization: 1997/04/15 10:10:10"/>
     <EditTextPreference
             android:icon="@drawable/ic_key"
-            android:title="Your API"
+            android:title="@string/solar_api_key"
             android:key="@string/api_key_preference"
             android:summary="Please provide your API"/>
     <ListPreference
             android:icon="@drawable/ic_access_time"
-            android:title="Window Time"
+            android:title="@string/time_window"
             android:summary="Select window time."
             android:key="@string/time_window_preference"
             android:defaultValue="false"
