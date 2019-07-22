@@ -48,7 +48,7 @@ class MapFragment : Fragment() {
         private val GEO_JSON_OPTIONS = GeoJsonOptions()
             .withCluster(true)
             .withClusterMaxZoom(14)
-            .withClusterRadius(20)
+            .withClusterRadius(10)
     }
 
     private lateinit var mapView: MapView
@@ -57,6 +57,7 @@ class MapFragment : Fragment() {
     private lateinit var mapboxMap: MapboxMap
     var latMarker: Double? = null
     var lonMarker: Double? = null
+    var mapZoom: Double = 0.0
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
 
@@ -114,15 +115,15 @@ class MapFragment : Fragment() {
         if (latMarker != null || lonMarker != null) {
             val position = CameraPosition.Builder()
                 .target(LatLng(latMarker!!, lonMarker!!))
-                .zoom(6.0)
-                .tilt(00.0)
+                .zoom(mapZoom)
+                .tilt(0.0)
                 .build()
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
         } else {
             val position = CameraPosition.Builder()
                 .target(LatLng(90.0, -100.0))
                 .zoom(0.0)
-                .tilt(00.0)
+                .tilt(0.0)
                 .build()
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
         }
@@ -155,6 +156,7 @@ class MapFragment : Fragment() {
             } else {
                 lonMarker = selectedFeature.getNumberProperty("lon") as Double
                 latMarker = selectedFeature.getNumberProperty("lat") as Double
+                mapZoom = mapboxMap.cameraPosition.zoom
                 val bundle = Bundle()
                 bundle.putString("stationId", selectedFeature.getStringProperty("id"))
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
