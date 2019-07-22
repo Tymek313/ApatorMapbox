@@ -3,16 +3,20 @@ package com.example.apatormapbox.fragments
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.navigation.Navigation
+import android.widget.Toast
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
+import com.example.apatormapbox.helpers.ConnectivityHelper
 import com.example.apatormapbox.helpers.DateHelper
+import com.example.apatormapbox.viewmodels.SolarViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var sharedPreferences: SharedPreferences
+    private val solarViewModel: SolarViewModel by viewModel()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preference)
@@ -20,7 +24,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         arrayOf(
@@ -28,18 +31,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
             //getString(R.string.sync_preference),
             getString(R.string.time_window_preference)
         ).forEach { setupPreference(it) }
-        findPreference("refresh_map").apply {
-            setOnPreferenceClickListener {
-                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.mapFragment)
-                true
-            }
-        }
+
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
-                val lastSyncInfo = "Last Synchronization: ${DateHelper.getToday()}"
-                it.summary = lastSyncInfo
-                sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                if (!ConnectivityHelper.isConnectedToNetwork(context)) {
+                    Toast.makeText(context, "Brak połączenia z internetem", Toast.LENGTH_SHORT).show()
+                } else {
+                    solarViewModel.fetchAllStationsFromApi()
+                    val lastSyncInfo = "Last Synchronization: ${DateHelper.getToday()}"
+                    it.summary = lastSyncInfo
+                    sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                }
                 true
             }
         }

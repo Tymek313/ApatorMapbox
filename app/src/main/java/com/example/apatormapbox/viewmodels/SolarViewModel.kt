@@ -3,6 +3,8 @@ package com.example.apatormapbox.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
+import com.example.apatormapbox.R
 import com.example.apatormapbox.database.MainDatabase
 import com.example.apatormapbox.helpers.Apifactory
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
@@ -14,7 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SolarViewModel(application: Application) : AndroidViewModel(application) {
+class SolarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     //COROUTINES
     private val parentJob = Job()
@@ -22,15 +24,29 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         get() = parentJob + Dispatchers.Default
     private val scope = CoroutineScope(coroutineContext)
     //DATABASE
-    val database = MainDatabase.getDatabase(application)
+    val database = MainDatabase.getDatabase(app)
     private val repository = SolarRepository(Apifactory.solarApi, database!!.stationDao())
+    //PREFERENCES
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(app)
     //LIVE DATA
     val stationDetails = MutableLiveData<StationDetailsEntity>()
     val stations = MutableLiveData<List<StationBasicEntity>>()
 
-    fun fetchStationsFromApi(lat: Int, lon: Int) {
+    fun fetchAllStationsFromApi() {
         scope.launch {
-            val stations = repository.getStationsFromApi(lat, lon)
+            val stations = repository.getStationsFromApi(
+                40,
+                -105,
+                preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+            )
+            this@SolarViewModel.stations.postValue(stations)
+        }
+        scope.launch {
+            val stations = repository.getStationsFromApi(
+                40,
+                85,
+                preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+            )
             this@SolarViewModel.stations.postValue(stations)
         }
     }
@@ -46,7 +62,10 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         scope.launch {
             var stationDetails = repository.getStationDetailsFromDb(stationId)
             if (stationDetails == null) {
-                stationDetails = repository.getStationDetailsFromApi(stationId)
+                stationDetails = repository.getStationDetailsFromApi(
+                    stationId,
+                    preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+                )
             }
             this@SolarViewModel.stationDetails.postValue(stationDetails)
         }

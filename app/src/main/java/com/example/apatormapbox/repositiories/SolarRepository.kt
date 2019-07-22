@@ -10,10 +10,10 @@ import retrofit2.Response
 
 class SolarRepository(private val api: SolarApi, private val stationDao: StationDao) : BaseRepository() {
 
-    suspend fun getStationDetailsFromApi(stationId: String): StationDetailsEntity? {
+    suspend fun getStationDetailsFromApi(stationId: String, apiKey: String): StationDetailsEntity? {
         return safeApiCall(
             call = {
-                val data = api.getStationDetails(stationId).await().body()
+                val data = api.getStationDetails(stationId, apiKey).await().body()
                 val mappedDetails = JsonToStationEntity.map(data!!)
                 stationDao.insertStationDetails(mappedDetails)
                 Response.success(mappedDetails)
@@ -26,13 +26,17 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
         return stationDao.getStationDetails(stationId)
     }
 
-    suspend fun getStationsFromApi(lat: Int, lon: Int): List<StationBasicEntity>? {
+    suspend fun getStationsFromApi(lat: Int, lon: Int, apiKey: String): List<StationBasicEntity>? {
         return safeApiCall(
             call = {
-                val data = api.getStations(lat, lon).await().body()
-                val mappedStations = data!!.outputs!!.allStations!!.map { JsonToBasicStationEntity.map(it!!) }
-                stationDao.insertAllStations(*mappedStations.toTypedArray())
-                Response.success(mappedStations)
+                val data = api.getStations(lat, lon, apiKey).await().body()
+                if (data == null) {
+                    Response.success(listOf())
+                } else {
+                    val mappedStations = data.outputs!!.allStations!!.map { JsonToBasicStationEntity.map(it!!) }
+                    stationDao.insertAllStations(*mappedStations.toTypedArray())
+                    Response.success(mappedStations)
+                }
             },
             errorMessage = "Error fetching stations"
         )

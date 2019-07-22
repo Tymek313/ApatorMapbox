@@ -18,9 +18,4 @@
             android:defaultValue="false"
             android:entries="@array/timeWindowLabels"
             android:entryValues="@array/timeWindowValues"/>
-    <Preference
-            android:title="Refresh Map"
-            android:icon="@drawable/ic_save"
-            android:key="refresh_map"
-            android:summary=""/>
 </PreferenceScreen>

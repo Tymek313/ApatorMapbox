@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -15,10 +14,7 @@ import androidx.navigation.Navigation
 import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
-import com.example.apatormapbox.helpers.AppConstants
-import com.example.apatormapbox.helpers.DateHelper
-import com.example.apatormapbox.helpers.DrawableToBitmapHelper
-import com.example.apatormapbox.helpers.PermissionsHelper
+import com.example.apatormapbox.helpers.*
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -41,6 +37,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 class MapFragment : Fragment() {
@@ -51,7 +48,7 @@ class MapFragment : Fragment() {
         private val GEO_JSON_OPTIONS = GeoJsonOptions()
             .withCluster(true)
             .withClusterMaxZoom(14)
-            .withClusterRadius(50)
+            .withClusterRadius(20)
     }
 
     private lateinit var mapView: MapView
@@ -68,6 +65,7 @@ class MapFragment : Fragment() {
         solarViewModel.stations.observe(this, Observer {
             onDataChanged(it)
         })
+        solarViewModel.fetchStationsFromDb()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -75,8 +73,6 @@ class MapFragment : Fragment() {
         if (arguments != null) {
             latMarker = arguments!!.getDouble("lat")
             lonMarker = arguments!!.getDouble("lon")
-            Log.d("MapFragment: ", "$latMarker")
-            Log.d("MapFragment: ", "$lonMarker")
         }
 
         PermissionsHelper.handlePermission(
@@ -91,6 +87,7 @@ class MapFragment : Fragment() {
         }
 
         geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
+        geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
 
         //PRZYGOTOWANIE TOOLBARA
         (activity as MainActivity).apply {
@@ -110,7 +107,6 @@ class MapFragment : Fragment() {
             onCreate(savedInstanceState)
         }
 
-        solarViewModel.fetchStationsFromDb()
         return view
     }
 
@@ -137,8 +133,11 @@ class MapFragment : Fragment() {
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
             feature.addStringProperty("id", it.id)
+            feature.addNumberProperty("lon", it.lon)
+            feature.addNumberProperty("lat", it.lat)
             symbols.add(feature)
         }
+        //geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
@@ -149,11 +148,13 @@ class MapFragment : Fragment() {
             val selectedFeature = features[0]
             if (selectedFeature.getBooleanProperty("cluster") == true) {
                 val cameraPosition = CameraPosition.Builder()
-                    .zoom(6.0)
+                    .zoom(mapboxMap.cameraPosition.zoom + 1)
                     .target(point)
                     .build()
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
             } else {
+                lonMarker = selectedFeature.getNumberProperty("lon") as Double
+                latMarker = selectedFeature.getNumberProperty("lat") as Double
                 val bundle = Bundle()
                 bundle.putString("stationId", selectedFeature.getStringProperty("id"))
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
@@ -277,17 +278,20 @@ class MapFragment : Fragment() {
         return when (item.itemId) {
             android.R.id.home -> {
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.settingsFragment)
-                Log.d("Map Fragment: ", "Przejście do ustawień")
+                Timber.d("Przejście do ustawień")
                 true
             }
             R.id.sync -> {
-                Log.d("Map Fragment: ", "Synchronizacja")
-                solarViewModel.fetchStationsFromApi(40, -105)
-                solarViewModel.fetchStationsFromApi(40, 85)
-                PreferenceManager.getDefaultSharedPreferences(context)
-                    .edit()
-                    .putString(getString(R.string.sync_preference), DateHelper.getToday())
-                    .apply()
+                Timber.d("Synchronizacja")
+                if (!ConnectivityHelper.isConnectedToNetwork(context!!)) {
+                    Toast.makeText(context, "Brak połączenia z internetem", Toast.LENGTH_SHORT).show()
+                } else {
+                    solarViewModel.fetchAllStationsFromApi()
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                        .edit()
+                        .putString(getString(R.string.sync_preference), DateHelper.getToday())
+                        .apply()
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

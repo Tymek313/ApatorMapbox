@@ -14,7 +14,6 @@ import com.example.apatormapbox.R
 import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import com.example.apatormapbox.objects.SetPassportDate
 import com.example.apatormapbox.viewmodels.SolarViewModel
-import kotlinx.android.synthetic.main.change_localization.*
 import kotlinx.android.synthetic.main.fragment_paszport.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -41,10 +40,7 @@ class PassportFragment : Fragment() {
 
         // Powrot do mapy...
         view.back_btn_PF.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putDouble("lat",stationDetailsEntity.lat!!)
-            bundle.putDouble("lon",stationDetailsEntity.lon!!)
-            Navigation.findNavController(view).navigate(R.id.action_paszportFragment_to_mapFragment, bundle)
+            Navigation.findNavController(view).popBackStack()
         }
 
         return view
@@ -56,7 +52,7 @@ class PassportFragment : Fragment() {
         val lon = stationDetailsEntity.lon
         val elev = stationDetailsEntity.elev
         val tz = stationDetailsEntity.tz
-        val location = stationDetailsEntity?.location
+        val location = stationDetailsEntity.location
         val city = stationDetailsEntity.city
         val state = stationDetailsEntity.state
         val distance = stationDetailsEntity.distance
