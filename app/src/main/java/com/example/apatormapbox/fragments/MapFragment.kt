@@ -47,16 +47,21 @@ class MapFragment : Fragment() {
 
     companion object {
         private const val STATION_POINTS_LAYER = "STATION_POINTS"
-        private const val DATA_SOURCE_ID = "DATA_SOURCE_ID"
-
+        private const val GEO_JSON_SOURCE_ID = "GEO_JSON_SOURCE_ID"
+        private val GEO_JSON_OPTIONS = GeoJsonOptions()
+            .withCluster(true)
+            .withClusterMaxZoom(14)
+            .withClusterRadius(50)
     }
 
     private lateinit var mapView: MapView
     private val solarViewModel: SolarViewModel by viewModel()
-    private lateinit var geoJsonSource: GeoJsonSource
+    private var geoJsonSource: GeoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID)
     private lateinit var mapboxMap: MapboxMap
     var latMarker: Double? = null
     var lonMarker: Double? = null
+    //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
+    private val symbols = ArrayList<Feature>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,12 +79,6 @@ class MapFragment : Fragment() {
             Log.d("MapFragment: ", "$lonMarker")
         }
 
-        val geoJsonOptions = GeoJsonOptions()
-            .withCluster(true)
-            .withClusterMaxZoom(14)
-            .withClusterRadius(50)
-        geoJsonSource = GeoJsonSource(DATA_SOURCE_ID, geoJsonOptions)
-
         PermissionsHelper.handlePermission(
             this,
             context!!,
@@ -90,6 +89,8 @@ class MapFragment : Fragment() {
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
+
+        geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
 
         //PRZYGOTOWANIE TOOLBARA
         (activity as MainActivity).apply {
@@ -131,12 +132,8 @@ class MapFragment : Fragment() {
         }
     }
 
-    /*
-     * ON DATA CHANGE
-     */
     fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         //Log.d("pobrano stacje", it.toString())
-        val symbols = ArrayList<Feature>()
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
             feature.addStringProperty("id", it.id)
@@ -160,7 +157,6 @@ class MapFragment : Fragment() {
                 val bundle = Bundle()
                 bundle.putString("stationId", selectedFeature.getStringProperty("id"))
                 Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
-
             }
         }
         return true
@@ -185,7 +181,7 @@ class MapFragment : Fragment() {
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
                 .withLayer(
-                    SymbolLayer(STATION_POINTS_LAYER, DATA_SOURCE_ID)
+                    SymbolLayer(STATION_POINTS_LAYER, GEO_JSON_SOURCE_ID)
                         .withProperties(
                             PropertyFactory.iconImage("ICON_ID"),
                             iconAllowOverlap(true),
@@ -199,8 +195,6 @@ class MapFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     fun onStyleLoaded(style: Style) {
-        // logika wyswietlenia markera z aktualna lokalizacja
-        // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
                 .trackingGesturesManagement(true)
@@ -289,6 +283,7 @@ class MapFragment : Fragment() {
             R.id.sync -> {
                 Log.d("Map Fragment: ", "Synchronizacja")
                 solarViewModel.fetchStationsFromApi(40, -105)
+                solarViewModel.fetchStationsFromApi(40, 85)
                 PreferenceManager.getDefaultSharedPreferences(context)
                     .edit()
                     .putString(getString(R.string.sync_preference), DateHelper.getToday())

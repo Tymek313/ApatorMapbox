@@ -30,8 +30,6 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
     fun fetchStationsFromApi(lat: Int, lon: Int) {
         scope.launch {
-            //var stations = repository.getStationsFromDb(lat, lon)
-            //if(stations.isNullOrEmpty())
             val stations = repository.getStationsFromApi(lat, lon)
             this@SolarViewModel.stations.postValue(stations)
         }

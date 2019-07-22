@@ -22,12 +22,8 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
         )
     }
 
-    suspend fun getStationDetailsFromDb(stationId: String): StationDetailsEntity? {
+    fun getStationDetailsFromDb(stationId: String): StationDetailsEntity? {
         return stationDao.getStationDetails(stationId)
-    }
-
-    suspend fun getStationsFromDb(): List<StationBasicEntity>? {
-        return stationDao.getAllAStations()
     }
 
     suspend fun getStationsFromApi(lat: Int, lon: Int): List<StationBasicEntity>? {
@@ -40,5 +36,9 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
             },
             errorMessage = "Error fetching stations"
         )
+    }
+
+    fun getStationsFromDb(): List<StationBasicEntity>? {
+        return stationDao.getAllAStations()
     }
 }
