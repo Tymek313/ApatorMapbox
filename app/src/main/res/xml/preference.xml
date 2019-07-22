@@ -8,6 +8,7 @@
     <EditTextPreference
             android:icon="@drawable/ic_key"
             android:title="@string/solar_api_key"
+            android:defaultValue="0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud"
             android:key="@string/api_key_preference"
             android:summary="Please provide your API"/>
     <ListPreference

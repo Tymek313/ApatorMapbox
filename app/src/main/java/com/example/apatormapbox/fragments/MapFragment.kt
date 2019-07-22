@@ -31,7 +31,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.get
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
@@ -104,7 +103,7 @@ class MapFragment : Fragment() {
 
         mapView = view.mapView.apply {
             getMapAsync {
-                onBackToMap(it)
+                onMapReady(it)
                 onBackToMap()
             }
             onCreate(savedInstanceState)
@@ -154,7 +153,7 @@ class MapFragment : Fragment() {
             val selectedFeature = features[0]
             if (selectedFeature.getBooleanProperty("cluster") == true) {
                 val cameraPosition = CameraPosition.Builder()
-                    .zoom(mapboxMap.cameraPosition.zoom + 1)
+                    .zoom(mapboxMap.cameraPosition.zoom + 2)
                     .target(point)
                     .build()
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
@@ -170,7 +169,7 @@ class MapFragment : Fragment() {
         return true
     }
 
-    private fun onBackToMap(mapboxMap: MapboxMap) {
+    private fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
         mapboxMap.addOnMapClickListener {
