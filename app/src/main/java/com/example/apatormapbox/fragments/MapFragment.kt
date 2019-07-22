@@ -45,6 +45,7 @@ class MapFragment : Fragment() {
     companion object {
         private const val STATION_POINTS_LAYER = "STATION_POINTS"
         private const val GEO_JSON_SOURCE_ID = "GEO_JSON_SOURCE_ID"
+        private const val MARKER_ICON_ID = "MARKER_ICON_ID"
         private val GEO_JSON_OPTIONS = GeoJsonOptions()
             .withCluster(true)
             .withClusterMaxZoom(14)
@@ -55,9 +56,10 @@ class MapFragment : Fragment() {
     private val solarViewModel: SolarViewModel by viewModel()
     private var geoJsonSource: GeoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID)
     private lateinit var mapboxMap: MapboxMap
-    var latMarker: Double? = null
-    var lonMarker: Double? = null
-    var mapZoom: Double = 0.0
+    //zapamietane ustwienia mapy aby je przywrocic przy powrocie z paszportu
+    private var latMarker: Double? = null
+    private var lonMarker: Double? = null
+    private var mapZoom: Double = 0.0
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
 
@@ -80,7 +82,7 @@ class MapFragment : Fragment() {
             this,
             context!!,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            AppConstants.PermissionConstants.LOCATION_PERMISSION.value
+            AppConstants.LOCATION_PERMISSION
         )
 
         view.locate_device_btn.setOnClickListener {
@@ -90,7 +92,7 @@ class MapFragment : Fragment() {
         geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
 
-        //PRZYGOTOWANIE TOOLBARA
+        //przygotowanie toolbara
         (activity as MainActivity).apply {
             setHasOptionsMenu(true)
             setSupportActionBar(view.mapToolbar)
@@ -103,7 +105,7 @@ class MapFragment : Fragment() {
         mapView = view.mapView.apply {
             getMapAsync {
                 onMapReady(it)
-                onMapClick()
+                onBackToMap()
             }
             onCreate(savedInstanceState)
         }
@@ -111,7 +113,7 @@ class MapFragment : Fragment() {
         return view
     }
 
-    fun onMapClick() {
+    private fun onBackToMap() {
         if (latMarker != null || lonMarker != null) {
             val position = CameraPosition.Builder()
                 .target(LatLng(latMarker!!, lonMarker!!))
@@ -129,8 +131,7 @@ class MapFragment : Fragment() {
         }
     }
 
-    fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
-        //Log.d("pobrano stacje", it.toString())
+    private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
             feature.addStringProperty("id", it.id)
@@ -142,7 +143,7 @@ class MapFragment : Fragment() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
-    fun onMarkerClick(point: LatLng): Boolean {
+    private fun onMarkerClick(point: LatLng): Boolean {
         val touchPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
         if (features.isNotEmpty()) {
@@ -165,7 +166,7 @@ class MapFragment : Fragment() {
         return true
     }
 
-    fun onMapReady(mapboxMap: MapboxMap) {
+    private fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
         mapboxMap.addOnMapClickListener {
@@ -182,22 +183,20 @@ class MapFragment : Fragment() {
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/apatormapbox/cjye0s52z03611cp9h4c5ufid")
                 .withSource(geoJsonSource)
-                .withImage("ICON_ID", markerBitmap)
+                .withImage(MARKER_ICON_ID, markerBitmap)
                 .withLayer(
                     SymbolLayer(STATION_POINTS_LAYER, GEO_JSON_SOURCE_ID)
                         .withProperties(
-                            PropertyFactory.iconImage("ICON_ID"),
+                            PropertyFactory.iconImage(MARKER_ICON_ID),
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f))
                         )
                 )
-        ) { style ->
-            onStyleLoaded(style)
-        }
+        ) { style -> onStyleLoaded(style) }
     }
 
     @SuppressLint("MissingPermission")
-    fun onStyleLoaded(style: Style) {
+    private fun onStyleLoaded(style: Style) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
                 .trackingGesturesManagement(true)
@@ -218,54 +217,43 @@ class MapFragment : Fragment() {
 
     @SuppressWarnings("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
-        // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(context!!)) {
-
-            // Get an instance of the component
             val locationComponent = mapboxMap.locationComponent
-
-            // Activate with options
             locationComponent.activateLocationComponent(
                 LocationComponentActivationOptions.builder(context!!, loadedMapStyle).build()
             )
-
-            // Enable to make component visible
             locationComponent.isLocationComponentEnabled = true
-/*
-            // Set the component's camera mode
-            locationComponent.caomeraM(CameraMode.TRACKING);
-
-            // Set the component's render mode
-            locationComponent.renderMode = RenderMode.COMPASS*/
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (grantResults.isEmpty()) {
-            permissionRejected()
-        }
+        when (requestCode) {
+            AppConstants.LOCATION_PERMISSION -> {
+                if (grantResults.isEmpty()) {
+                    permissionRejected()
+                }
 
-        when (grantResults[0]) {
-            PackageManager.PERMISSION_DENIED -> permissionRejected()
-            PackageManager.PERMISSION_GRANTED -> mapboxMap.getStyle {
-                enableLocationComponent(it)
+                when (grantResults[0]) {
+                    PackageManager.PERMISSION_DENIED -> permissionRejected()
+                    PackageManager.PERMISSION_GRANTED -> mapboxMap.getStyle { enableLocationComponent(it) }
+                }
             }
         }
     }
 
-    fun permissionRejected() {
-        Toast.makeText(context, "Localisation permissions are necessary", Toast.LENGTH_SHORT).show()
+    private fun permissionRejected() {
+        Toast.makeText(context, R.string.localisation_permissions_are_necessary, Toast.LENGTH_SHORT).show()
         activity!!.finish()
     }
 
-    fun onLocationBtnClick(view: View) {
+    private fun onLocationBtnClick(view: View) {
         when (view.id) {
             R.id.locate_device_btn -> {
                 val location = mapboxMap.locationComponent.lastKnownLocation!!
                 val position = CameraPosition.Builder()
                     .target(LatLng(location.latitude, location.longitude))
                     .zoom(6.0)
-                    .tilt(00.0)
+                    .tilt(0.0)
                     .build()
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
             }
@@ -286,7 +274,7 @@ class MapFragment : Fragment() {
             R.id.sync -> {
                 Timber.d("Synchronizacja")
                 if (!ConnectivityHelper.isConnectedToNetwork(context!!)) {
-                    Toast.makeText(context, "Brak połączenia z internetem", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
                 } else {
                     solarViewModel.fetchAllStationsFromApi()
                     PreferenceManager.getDefaultSharedPreferences(context)

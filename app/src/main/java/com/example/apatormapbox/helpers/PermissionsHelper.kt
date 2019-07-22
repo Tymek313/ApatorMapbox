@@ -8,11 +8,7 @@ import androidx.fragment.app.Fragment
 object PermissionsHelper {
 
     fun handlePermission(fragment: Fragment, context: Context, permission: String, requestCode: Int) {
-        if (ContextCompat.checkSelfPermission(
-                context,
-                permission
-            ) == PackageManager.PERMISSION_DENIED
-        ) {
+        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_DENIED) {
             fragment.requestPermissions(arrayOf(permission), requestCode)
         }
     }
