@@ -29,9 +29,10 @@ import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression
+import com.mapbox.mapboxsdk.style.expressions.Expression.get
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -55,8 +56,8 @@ class MapFragment : Fragment() {
     private val solarViewModel: SolarViewModel by viewModel()
     private var geoJsonSource: GeoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID)
     private lateinit var mapboxMap: MapboxMap
-    var latMarker: Double? = null
-    var lonMarker: Double? = null
+    private var latMarker: Double? = null
+    private var lonMarker: Double? = null
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
 
@@ -101,7 +102,7 @@ class MapFragment : Fragment() {
 
         mapView = view.mapView.apply {
             getMapAsync {
-                onMapReady(it)
+                onBackToMap(it)
                 onMapClick()
             }
             onCreate(savedInstanceState)
@@ -110,7 +111,7 @@ class MapFragment : Fragment() {
         return view
     }
 
-    fun onMapClick() {
+    private fun onMapClick() {
         if (latMarker != null || lonMarker != null) {
             val position = CameraPosition.Builder()
                 .target(LatLng(latMarker!!, lonMarker!!))
@@ -128,7 +129,7 @@ class MapFragment : Fragment() {
         }
     }
 
-    fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
+    private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         //Log.d("pobrano stacje", it.toString())
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
@@ -141,7 +142,7 @@ class MapFragment : Fragment() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
-    fun onMarkerClick(point: LatLng): Boolean {
+    private fun onMarkerClick(point: LatLng): Boolean {
         val touchPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
         if (features.isNotEmpty()) {
@@ -163,7 +164,7 @@ class MapFragment : Fragment() {
         return true
     }
 
-    fun onMapReady(mapboxMap: MapboxMap) {
+    private fun onBackToMap(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
         mapboxMap.addOnMapClickListener {
@@ -184,9 +185,11 @@ class MapFragment : Fragment() {
                 .withLayer(
                     SymbolLayer(STATION_POINTS_LAYER, GEO_JSON_SOURCE_ID)
                         .withProperties(
-                            PropertyFactory.iconImage("ICON_ID"),
+                            iconImage("ICON_ID"),
                             iconAllowOverlap(true),
-                            iconOffset(arrayOf(0f, -9f))
+                            iconOffset(arrayOf(0f, -9f)),
+                            textField(Expression.toString(get("point_count"))),
+                            textOffset(arrayOf(0f,0.5f))
                         )
                 )
         ) { style ->
@@ -195,7 +198,7 @@ class MapFragment : Fragment() {
     }
 
     @SuppressLint("MissingPermission")
-    fun onStyleLoaded(style: Style) {
+    private fun onStyleLoaded(style: Style) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
                 .trackingGesturesManagement(true)
@@ -251,12 +254,12 @@ class MapFragment : Fragment() {
         }
     }
 
-    fun permissionRejected() {
+    private fun permissionRejected() {
         Toast.makeText(context, "Localisation permissions are necessary", Toast.LENGTH_SHORT).show()
         activity!!.finish()
     }
 
-    fun onLocationBtnClick(view: View) {
+    private fun onLocationBtnClick(view: View) {
         when (view.id) {
             R.id.locate_device_btn -> {
                 val location = mapboxMap.locationComponent.lastKnownLocation!!

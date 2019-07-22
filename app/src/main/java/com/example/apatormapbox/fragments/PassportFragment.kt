@@ -27,18 +27,14 @@ class PassportFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_paszport, container, false)
-        var stationDetailsEntity: StationDetailsEntity = StationDetailsEntity("0",0.0,0.0)
-        // zmieniaj tutaj! - chwilowe dane testowe... - najlepiej nadac inna wartosc stałym aby nie grzebać w kodzie
 
         // Pobranie ID z bundle oraz zainicjowanie bazy danych -->
         val id = arguments!!.getString("stationId")
         solarViewModel.fetchStationDetails(id!!)
         solarViewModel.stationDetails.observe(this, Observer {
-            stationDetailsEntity = it
-            refViews(it,view)
+            refViews(it, view)
         })
 
-        // Powrot do mapy...
         view.back_btn_PF.setOnClickListener {
             Navigation.findNavController(view).popBackStack()
         }
@@ -46,7 +42,7 @@ class PassportFragment : Fragment() {
         return view
     }
 
-    fun refViews(stationDetailsEntity: StationDetailsEntity, view: View){
+    fun refViews(stationDetailsEntity: StationDetailsEntity, view: View) {
 
         val lat = stationDetailsEntity.lat
         val lon = stationDetailsEntity.lon
@@ -100,7 +96,6 @@ class PassportFragment : Fragment() {
         val anyChartViewAC = view.ac_monthly_ACV_PF
         APIlib.getInstance().setActiveAnyChartView(anyChartViewAC)
         val pieAC = AnyChart.column()
-
         pieAC.title("Monthly AC system output")
         pieAC.data(dataAC)
         anyChartViewAC.setChart(pieAC)

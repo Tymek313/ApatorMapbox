@@ -39,7 +39,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     Toast.makeText(context, "Brak połączenia z internetem", Toast.LENGTH_SHORT).show()
                 } else {
                     solarViewModel.fetchAllStationsFromApi()
-                    val lastSyncInfo = "Last Synchronization: ${DateHelper.getToday()}"
+                    val lastSyncInfo = "Ostatnia synchornizacja: ${DateHelper.getToday()}"
                     it.summary = lastSyncInfo
                     sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
                 }
