@@ -26,14 +26,10 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdate
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
@@ -41,8 +37,8 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.android.synthetic.main.change_localization.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -51,6 +47,8 @@ class MapFragment : Fragment() {
 
     companion object {
         private const val STATION_POINTS_LAYER = "STATION_POINTS"
+        private const val DATA_SOURCE_ID = "DATA_SOURCE_ID"
+
     }
 
     private lateinit var mapView: MapView
@@ -59,7 +57,6 @@ class MapFragment : Fragment() {
     private lateinit var mapboxMap: MapboxMap
     var latMarker: Double? = null
     var lonMarker: Double? = null
-    private lateinit var observer: Observer<List<StationBasicEntity>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,13 +67,19 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
-        if(arguments != null){
+        if (arguments != null) {
             latMarker = arguments!!.getDouble("lat")
             lonMarker = arguments!!.getDouble("lon")
             Log.d("MapFragment: ", "$latMarker")
             Log.d("MapFragment: ", "$lonMarker")
         }
-        geoJsonSource = GeoJsonSource("SOURCE_ID")
+
+        val geoJsonOptions = GeoJsonOptions()
+            .withCluster(true)
+            .withClusterMaxZoom(14)
+            .withClusterRadius(50)
+        geoJsonSource = GeoJsonSource(DATA_SOURCE_ID, geoJsonOptions)
+
         PermissionsHelper.handlePermission(
             this,
             context!!,
@@ -106,24 +109,19 @@ class MapFragment : Fragment() {
             onCreate(savedInstanceState)
         }
 
-
-
         solarViewModel.fetchStationsFromDb()
         return view
     }
 
-    /*
-     * ON DATA CHANGE
-     */
-    fun onMapClick(){
-        if(latMarker != null || lonMarker != null){
+    fun onMapClick() {
+        if (latMarker != null || lonMarker != null) {
             val position = CameraPosition.Builder()
                 .target(LatLng(latMarker!!, lonMarker!!))
                 .zoom(6.0)
                 .tilt(00.0)
                 .build()
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
-        }else{
+        } else {
             val position = CameraPosition.Builder()
                 .target(LatLng(90.0, -100.0))
                 .zoom(0.0)
@@ -132,6 +130,10 @@ class MapFragment : Fragment() {
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
         }
     }
+
+    /*
+     * ON DATA CHANGE
+     */
     fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
         //Log.d("pobrano stacje", it.toString())
         val symbols = ArrayList<Feature>()
@@ -148,16 +150,25 @@ class MapFragment : Fragment() {
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
         if (features.isNotEmpty()) {
             val selectedFeature = features[0]
-            val bundle = Bundle()
-            bundle.putString("stationId", selectedFeature.getStringProperty("id"))
-            Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
-            //Toast.makeText(context, selectedFeature.getStringProperty("id"), Toast.LENGTH_SHORT).show()
+            if (selectedFeature.getBooleanProperty("cluster") == true) {
+                val cameraPosition = CameraPosition.Builder()
+                    .zoom(6.0)
+                    .target(point)
+                    .build()
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
+            } else {
+                val bundle = Bundle()
+                bundle.putString("stationId", selectedFeature.getStringProperty("id"))
+                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
+
+            }
         }
         return true
     }
 
     fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+
         mapboxMap.addOnMapClickListener {
             onMarkerClick(it)
         }
@@ -170,11 +181,11 @@ class MapFragment : Fragment() {
                 )!!
             )!!
         mapboxMap.setStyle(
-            Style.Builder().fromUrl("mapbox://styles/mapbox/cjerxnqt3cgvp2rmyuxbeqme7")
+            Style.Builder().fromUrl("mapbox://styles/apatormapbox/cjye0s52z03611cp9h4c5ufid")
                 .withSource(geoJsonSource)
                 .withImage("ICON_ID", markerBitmap)
                 .withLayer(
-                    SymbolLayer(STATION_POINTS_LAYER, "SOURCE_ID")
+                    SymbolLayer(STATION_POINTS_LAYER, DATA_SOURCE_ID)
                         .withProperties(
                             PropertyFactory.iconImage("ICON_ID"),
                             iconAllowOverlap(true),
@@ -183,6 +194,28 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun onStyleLoaded(style: Style) {
+        // logika wyswietlenia markera z aktualna lokalizacja
+        // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
+        if (PermissionsManager.areLocationPermissionsGranted(context)) {
+            val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
+                .trackingGesturesManagement(true)
+                .accuracyColor(ContextCompat.getColor(context!!, R.color.mapbox_gray))
+                .build()
+            if (mapboxMap.style != null) {
+                val locationComponentActivationOptions =
+                    LocationComponentActivationOptions.builder(context!!, style)
+                        .locationComponentOptions(customLocationComponentOptions)
+                        .build()
+                mapboxMap.locationComponent.apply {
+                    activateLocationComponent(locationComponentActivationOptions)
+                    isLocationComponentEnabled = true
+                }
+            }
         }
     }
 
@@ -228,36 +261,9 @@ class MapFragment : Fragment() {
         activity!!.finish()
     }
 
-    @SuppressLint("MissingPermission")
-    fun onStyleLoaded(style: Style) {
-        // logika wyswietlenia markera z aktualna lokalizacja
-        // brak dodanego zapytania o uprawnienia do lokalizacji, aktualnie trzeba dac te uprawnienia recznie (o ile nie działa odrazu)
-        if (PermissionsManager.areLocationPermissionsGranted(context)) {
-            val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
-                .trackingGesturesManagement(true)
-                .accuracyColor(ContextCompat.getColor(context!!, R.color.mapbox_gray))
-                .build()
-            if (mapboxMap.style != null) {
-                val locationComponentActivationOptions =
-                    LocationComponentActivationOptions.builder(context!!, style)
-                        .locationComponentOptions(customLocationComponentOptions)
-                        .build()
-                mapboxMap.locationComponent.apply {
-                    activateLocationComponent(locationComponentActivationOptions)
-                    isLocationComponentEnabled = true
-                }
-            }
-        }
-    }
-
-    fun onLocationBtnClick(view: View?) {
-        when (view?.id) {
-            // przycisk lokalizacji, ustawienie kamery na aktualnej lokalizacji
-            // pobieram lokalizacje do location ->
-            // nastepnie mapuje ja na CameraPosition ->
-            // i ustawiam pozycje kamery na aktualna lokalizacje
+    fun onLocationBtnClick(view: View) {
+        when (view.id) {
             R.id.locate_device_btn -> {
-                //Navigation.findNavController(view).navigate(R.id.action_mapFragment_to_paszportFragment)
                 val location = mapboxMap.locationComponent.lastKnownLocation!!
                 val position = CameraPosition.Builder()
                     .target(LatLng(location.latitude, location.longitude))
@@ -307,7 +313,6 @@ class MapFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
-        //solarViewModel.stations.removeObservers(this)
     }
 
     override fun onStop() {
