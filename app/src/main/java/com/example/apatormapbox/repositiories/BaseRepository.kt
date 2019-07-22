@@ -1,8 +1,8 @@
 package com.example.apatormapbox.repositiories
 
-import android.util.Log
 import com.example.apatormapbox.helpers.HttpResult
 import retrofit2.Response
+import timber.log.Timber
 import java.io.IOException
 
 open class BaseRepository {
@@ -15,7 +15,7 @@ open class BaseRepository {
             is HttpResult.Success ->
                 data = httpResult.data
             is HttpResult.Error -> {
-                Log.d("1.DataRepository", "$errorMessage & Exception - ${httpResult.exception}")
+                Timber.d("$errorMessage & Exception - ${httpResult.exception}")
             }
         }
 

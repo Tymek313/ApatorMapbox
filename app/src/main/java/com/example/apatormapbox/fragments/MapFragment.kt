@@ -68,7 +68,6 @@ class MapFragment : Fragment() {
         solarViewModel.stations.observe(this, Observer {
             onDataChanged(it)
         })
-        solarViewModel.fetchStationsFromDb()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -110,6 +109,11 @@ class MapFragment : Fragment() {
             onCreate(savedInstanceState)
         }
 
+        if (symbols.isNotEmpty()) {
+            symbols.clear()
+        }
+        solarViewModel.fetchStationsFromDb()
+
         return view
     }
 
@@ -139,7 +143,6 @@ class MapFragment : Fragment() {
             feature.addNumberProperty("lat", it.lat)
             symbols.add(feature)
         }
-        //geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
