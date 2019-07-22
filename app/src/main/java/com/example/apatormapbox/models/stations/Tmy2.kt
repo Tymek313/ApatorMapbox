@@ -1,25 +1,23 @@
-package com.example.apatormapbox.model
+package com.example.apatormapbox.models.stations
 
 
 import com.google.gson.annotations.SerializedName
 
-data class StationInfo(
+data class Tmy2(
     @SerializedName("city")
     val city: String?,
     @SerializedName("distance")
     val distance: Int?,
-    @SerializedName("elev")
-    val elev: Double?,
+    @SerializedName("elevation")
+    val elevation: Int?,
+    @SerializedName("id")
+    val id: String?,
     @SerializedName("lat")
     val lat: Double?,
-    @SerializedName("location")
-    val location: String?,
     @SerializedName("lon")
     val lon: Double?,
-    @SerializedName("solar_resource_file")
-    val solarResourceFile: String?,
     @SerializedName("state")
     val state: String?,
-    @SerializedName("tz")
-    val tz: Int?
+    @SerializedName("timezone")
+    val timezone: Int?
 )

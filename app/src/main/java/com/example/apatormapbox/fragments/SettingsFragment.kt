@@ -2,17 +2,21 @@ package com.example.apatormapbox.fragments
 
 
 import android.content.SharedPreferences
-import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.widget.Toast
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
-import java.util.*
+import com.example.apatormapbox.helpers.ConnectivityHelper
+import com.example.apatormapbox.helpers.DateHelper
+import com.example.apatormapbox.viewmodels.SolarViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var sharedPreferences: SharedPreferences
+    private val solarViewModel: SolarViewModel by viewModel()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preference)
@@ -20,7 +24,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         arrayOf(
@@ -32,10 +35,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
-                val date = SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Date())
-                val lastSyncInfo = "Last Synchronization: $date"
-                it.summary = lastSyncInfo
-                sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                if (!ConnectivityHelper.isConnectedToNetwork(context)) {
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
+                } else {
+                    solarViewModel.fetchAllStationsFromApi()
+                    val lastSyncInfo = "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
+                    it.summary = lastSyncInfo
+                    sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                }
                 true
             }
         }

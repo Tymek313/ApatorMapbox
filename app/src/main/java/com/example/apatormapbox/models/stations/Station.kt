@@ -1,21 +1,19 @@
-package com.example.apatormapbox.model
+package com.example.apatormapbox.models.stations
 
 
 import com.google.gson.annotations.SerializedName
 
-data class Solar(
+data class Station(
     @SerializedName("errors")
     val errors: List<Any?>?,
     @SerializedName("inputs")
     val inputs: Inputs?,
+    @SerializedName("metadata")
+    val metadata: Metadata?,
     @SerializedName("outputs")
     val outputs: Outputs?,
-    @SerializedName("ssc_info")
-    val sscInfo: SscInfo?,
-    @SerializedName("station_info")
-    val stationInfo: StationInfo?,
     @SerializedName("version")
     val version: String?,
     @SerializedName("warnings")
-    val warnings: List<Any?>?
+    val warnings: List<String?>?
 )

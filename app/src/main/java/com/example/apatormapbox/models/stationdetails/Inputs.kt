@@ -1,9 +1,11 @@
-package com.example.apatormapbox.model
+package com.example.apatormapbox.models.stationdetails
 
 
 import com.google.gson.annotations.SerializedName
 
 data class Inputs(
+    @SerializedName("file_id")
+    val fileId: String?,
     @SerializedName("array_type")
     val arrayType: String?,
     @SerializedName("azimuth")
