@@ -30,7 +30,9 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
-import com.mapbox.mapboxsdk.style.expressions.Expression.get
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import com.mapbox.mapboxsdk.style.layers.HeatmapLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
@@ -38,6 +40,8 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import java.lang.Exception
+import java.net.URL
 
 
 class MapFragment : Fragment() {
@@ -62,6 +66,12 @@ class MapFragment : Fragment() {
     private var mapZoom: Double = 0.0
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
+    //globalne stałe do trzesnien ziemi
+    private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-03"
+    private val EARTHQUAKE_SOURCE_ID = "earthquakes";
+    private val HEATMAP_LAYER_ID = "earthquakes-heat";
+    private val HEATMAP_LAYER_SOURCE = "earthquakes";
+    private val CIRCLE_LAYER_ID = "earthquakes-circle";
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,7 +204,113 @@ class MapFragment : Fragment() {
                             textOffset(arrayOf(0f, 0.5f))
                         )
                 )
-        ) { style -> onStyleLoaded(style) }
+        ) { style ->
+            onStyleLoaded(style)
+            addEarthquakeSource(style)
+            addHeatmapLayer(style)
+            addCircleLayer(style)
+        }
+    }
+
+    private fun addCircleLayer(loadedMapStyle: Style){
+        val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
+        circleLayer.setProperties(
+            // Size circle radius by earthquake magnitude and zoom level
+            circleRadius(
+                interpolate(
+                    linear(), zoom(),
+                    literal(7), interpolate(
+                        linear(), get("mag"),
+                        stop(1, 1),
+                        stop(6, 4)
+                    ),
+                    literal(16), interpolate(
+                        linear(), get("mag"),
+                        stop(1, 5),
+                        stop(6, 50)
+                    )
+                )
+            ),
+
+            // Color circle by earthquake magnitude
+            circleColor(
+                interpolate(
+                    linear(), get("mag"),
+                    literal(1), rgba(33, 102, 172, 0),
+                    literal(2), rgb(103, 169, 207),
+                    literal(3), rgb(209, 229, 240),
+                    literal(4), rgb(253, 219, 199),
+                    literal(5), rgb(239, 138, 98),
+                    literal(6), rgb(178, 24, 43)
+                )
+            ),
+
+            // Transition from heatmap to circle layer by zoom level
+            circleOpacity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(7, 0),
+                    stop(8, 1)
+                )
+            ),
+            circleStrokeColor("white"),
+            circleStrokeWidth(1.0f)
+        )
+
+        loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
+    }
+
+    private fun addHeatmapLayer(loadedMapStyle: Style){
+        val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
+        layer.setMaxZoom(2.0F)
+        layer.setSourceLayer(HEATMAP_LAYER_SOURCE)
+        layer.setProperties(
+            heatmapColor(
+                interpolate(
+                    linear(), heatmapDensity(),
+                    literal(0), rgba(33, 102, 172, 0),
+                    literal(0.2), rgb(103, 169, 207),
+                    literal(0.4), rgb(209, 229, 240),
+                    literal(0.6), rgb(253, 219, 199),
+                    literal(0.8), rgb(239, 138, 98),
+                    literal(1), rgb(178, 24, 43)
+                )
+            ),
+
+            heatmapWeight(
+                interpolate(
+                    linear(), get("mag"),
+                    stop(0, 0),
+                    stop(6, 1)
+                )
+            ),
+
+            heatmapIntensity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(0, 1),
+                    stop(9, 3)
+                )
+            ),
+
+            heatmapOpacity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(7, 1),
+                    stop(9, 0)
+                )
+            )
+        )
+
+        loadedMapStyle.addLayerAbove(layer, "waterway-label")
+    }
+
+    private fun addEarthquakeSource(loadedMapStyle: Style){
+        try{
+            loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
+        }catch (malformedURLException: Exception){
+            Timber.e(malformedURLException, "That's not an url...")
+        }
     }
 
     @SuppressLint("MissingPermission")
