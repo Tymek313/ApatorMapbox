@@ -181,7 +181,7 @@ class MapFragment : Fragment() {
                 )!!
             )!!
         mapboxMap.setStyle(
-            Style.Builder().fromUrl("mapbox://styles/apatormapbox/cjye0s52z03611cp9h4c5ufid")
+            Style.Builder().fromUrl(getString(R.string.map_url))
                 .withSource(geoJsonSource)
                 .withImage(MARKER_ICON_ID, markerBitmap)
                 .withLayer(
