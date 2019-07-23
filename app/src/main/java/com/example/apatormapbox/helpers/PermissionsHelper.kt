@@ -7,9 +7,15 @@ import androidx.fragment.app.Fragment
 
 object PermissionsHelper {
 
-    fun handlePermission(fragment: Fragment, context: Context, permission: String, requestCode: Int) {
-        if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_DENIED) {
+    private fun isPermissionGranted(context: Context, permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun handlePermission(fragment: Fragment, context: Context, permission: String, requestCode: Int): Boolean {
+        if (!isPermissionGranted(context, permission)) {
             fragment.requestPermissions(arrayOf(permission), requestCode)
+            return false
         }
+        return true
     }
 }

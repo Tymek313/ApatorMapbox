@@ -15,7 +15,7 @@ open class BaseRepository {
             is HttpResult.Success ->
                 data = httpResult.data
             is HttpResult.Error -> {
-                Timber.d( "$errorMessage & Exception - ${httpResult.exception}")
+                Timber.e("$errorMessage & Exception - ${httpResult.exception}")
             }
         }
         return data

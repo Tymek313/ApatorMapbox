@@ -35,13 +35,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
-                if (!ConnectivityHelper.isConnectedToNetwork(context)) {
-                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
-                } else {
+                if (ConnectivityHelper.isConnectedToNetwork(context)) {
                     solarViewModel.fetchAllStationsFromApi()
                     val lastSyncInfo = "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
                     it.summary = lastSyncInfo
                     sharedPreferences.edit().putString(it.key, lastSyncInfo).apply()
+                } else {
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
                 }
                 true
             }

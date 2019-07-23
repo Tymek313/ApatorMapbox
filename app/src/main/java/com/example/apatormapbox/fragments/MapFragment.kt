@@ -31,7 +31,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.get
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
@@ -78,13 +77,6 @@ class MapFragment : Fragment() {
             lonMarker = arguments!!.getDouble("lon")
         }
 
-        PermissionsHelper.handlePermission(
-            this,
-            context!!,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            AppConstants.LOCATION_PERMISSION
-        )
-
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
@@ -104,17 +96,13 @@ class MapFragment : Fragment() {
 
         mapView = view.mapView.apply {
             getMapAsync {
-                onBackToMap(it)
+                onMapReady(it)
                 onBackToMap()
             }
             onCreate(savedInstanceState)
         }
 
-        if (symbols.isNotEmpty()) {
-            symbols.clear()
-        }
         solarViewModel.fetchStationsFromDb()
-
         return view
     }
 
@@ -137,6 +125,13 @@ class MapFragment : Fragment() {
     }
 
     private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
+        if (stationBasicEntities.isEmpty()) {
+            Toast.makeText(context, getString(R.string.api_key_error_message), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (symbols.isNotEmpty()) {
+            symbols.clear()
+        }
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
             feature.addStringProperty("id", it.id)
@@ -150,11 +145,12 @@ class MapFragment : Fragment() {
     private fun onMarkerClick(point: LatLng): Boolean {
         val touchPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
+
         if (features.isNotEmpty()) {
             val selectedFeature = features[0]
             if (selectedFeature.getBooleanProperty("cluster") == true) {
                 val cameraPosition = CameraPosition.Builder()
-                    .zoom(mapboxMap.cameraPosition.zoom + 1)
+                    .zoom(mapboxMap.cameraPosition.zoom + 2)
                     .target(point)
                     .build()
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
@@ -170,7 +166,7 @@ class MapFragment : Fragment() {
         return true
     }
 
-    private fun onBackToMap(mapboxMap: MapboxMap) {
+    private fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
         mapboxMap.addOnMapClickListener {
@@ -185,7 +181,7 @@ class MapFragment : Fragment() {
                 )!!
             )!!
         mapboxMap.setStyle(
-            Style.Builder().fromUrl("mapbox://styles/apatormapbox/cjye0s52z03611cp9h4c5ufid")
+            Style.Builder().fromUrl(getString(R.string.map_url))
                 .withSource(geoJsonSource)
                 .withImage(MARKER_ICON_ID, markerBitmap)
                 .withLayer(
@@ -195,7 +191,7 @@ class MapFragment : Fragment() {
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f)),
                             textField(Expression.toString(get("point_count"))),
-                            textOffset(arrayOf(0f,0.5f))
+                            textOffset(arrayOf(0f, 0.5f))
                         )
                 )
         ) { style -> onStyleLoaded(style) }
@@ -235,33 +231,31 @@ class MapFragment : Fragment() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
             AppConstants.LOCATION_PERMISSION -> {
-                if (grantResults.isEmpty()) {
-                    permissionRejected()
-                }
-
                 when (grantResults[0]) {
-                    PackageManager.PERMISSION_DENIED -> permissionRejected()
                     PackageManager.PERMISSION_GRANTED -> mapboxMap.getStyle { enableLocationComponent(it) }
                 }
             }
         }
     }
 
-    private fun permissionRejected() {
-        Toast.makeText(context, R.string.localisation_permissions_are_necessary, Toast.LENGTH_SHORT).show()
-        activity!!.finish()
-    }
-
     private fun onLocationBtnClick(view: View) {
         when (view.id) {
             R.id.locate_device_btn -> {
-                val location = mapboxMap.locationComponent.lastKnownLocation!!
-                val position = CameraPosition.Builder()
-                    .target(LatLng(location.latitude, location.longitude))
-                    .zoom(6.0)
-                    .tilt(0.0)
-                    .build()
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                val isGranted = PermissionsHelper.handlePermission(
+                    this,
+                    context!!,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    AppConstants.LOCATION_PERMISSION
+                )
+                if (isGranted) {
+                    val location = mapboxMap.locationComponent.lastKnownLocation!!
+                    val position = CameraPosition.Builder()
+                        .target(LatLng(location.latitude, location.longitude))
+                        .zoom(6.0)
+                        .tilt(0.0)
+                        .build()
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                }
             }
         }
     }
@@ -279,14 +273,17 @@ class MapFragment : Fragment() {
             }
             R.id.sync -> {
                 Timber.d("Synchronizacja")
-                if (!ConnectivityHelper.isConnectedToNetwork(context!!)) {
-                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
-                } else {
+                if (ConnectivityHelper.isConnectedToNetwork(context!!)) {
                     solarViewModel.fetchAllStationsFromApi()
                     PreferenceManager.getDefaultSharedPreferences(context)
                         .edit()
-                        .putString(getString(R.string.sync_preference), DateHelper.getToday())
+                        .putString(
+                            getString(R.string.sync_preference),
+                            "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
+                        )
                         .apply()
+                } else {
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
                 }
                 true
             }
