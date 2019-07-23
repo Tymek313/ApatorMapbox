@@ -38,8 +38,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
-import java.lang.Exception
-import kotlin.random.Random
 
 
 class MapFragment : Fragment() {
@@ -79,13 +77,6 @@ class MapFragment : Fragment() {
             lonMarker = arguments!!.getDouble("lon")
         }
 
-        PermissionsHelper.handlePermission(
-            this,
-            context!!,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            AppConstants.LOCATION_PERMISSION
-        )
-
         view.locate_device_btn.setOnClickListener {
             onLocationBtnClick(it)
         }
@@ -111,9 +102,7 @@ class MapFragment : Fragment() {
             onCreate(savedInstanceState)
         }
 
-
         solarViewModel.fetchStationsFromDb()
-
         return view
     }
 
@@ -136,6 +125,10 @@ class MapFragment : Fragment() {
     }
 
     private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
+        if (stationBasicEntities.isEmpty()) {
+            Toast.makeText(context, getString(R.string.api_key_error_message), Toast.LENGTH_SHORT).show()
+            return
+        }
         if (symbols.isNotEmpty()) {
             symbols.clear()
         }
@@ -149,40 +142,27 @@ class MapFragment : Fragment() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
-    private fun getMarkerChildren(features: FeatureCollection): FeatureCollection {
-        val hasClusterChild = features.features()!!.any {
-            //it.getStringProperty("id") == null
-            it.getBooleanProperty("cluster") == true
-        }
-        if (hasClusterChild) {
-            return getMarkerChildren(geoJsonSource.getClusterChildren(features.features()!![0]))
-        }
-        return features
-    }
-
     private fun onMarkerClick(point: LatLng): Boolean {
         val touchPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
 
-        try {
-            if (features.isNotEmpty()) {
-                val selectedFeature = features[0]
-                if (selectedFeature.getBooleanProperty("cluster") == true) {
-                    val cameraPosition = CameraPosition.Builder()
-                        .zoom(mapboxMap.cameraPosition.zoom + 2)
-                        .target(point)
-                        .build()
-                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
-                } else {
-                    lonMarker = selectedFeature.getNumberProperty("lon") as Double
-                    latMarker = selectedFeature.getNumberProperty("lat") as Double
-                    mapZoom = mapboxMap.cameraPosition.zoom
-                    val bundle = Bundle()
-                    bundle.putString("stationId", selectedFeature.getStringProperty("id"))
-                    Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
-                }
+        if (features.isNotEmpty()) {
+            val selectedFeature = features[0]
+            if (selectedFeature.getBooleanProperty("cluster") == true) {
+                val cameraPosition = CameraPosition.Builder()
+                    .zoom(mapboxMap.cameraPosition.zoom + 2)
+                    .target(point)
+                    .build()
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
+            } else {
+                lonMarker = selectedFeature.getNumberProperty("lon") as Double
+                latMarker = selectedFeature.getNumberProperty("lat") as Double
+                mapZoom = mapboxMap.cameraPosition.zoom
+                val bundle = Bundle()
+                bundle.putString("stationId", selectedFeature.getStringProperty("id"))
+                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
             }
-        }catch (e: Exception) { }
+        }
         return true
     }
 
@@ -211,7 +191,7 @@ class MapFragment : Fragment() {
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f)),
                             textField(Expression.toString(get("point_count"))),
-                            textOffset(arrayOf(0f,0.5f))
+                            textOffset(arrayOf(0f, 0.5f))
                         )
                 )
         ) { style -> onStyleLoaded(style) }
@@ -251,33 +231,31 @@ class MapFragment : Fragment() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
             AppConstants.LOCATION_PERMISSION -> {
-                if (grantResults.isEmpty()) {
-                    permissionRejected()
-                }
-
                 when (grantResults[0]) {
-                    PackageManager.PERMISSION_DENIED -> permissionRejected()
                     PackageManager.PERMISSION_GRANTED -> mapboxMap.getStyle { enableLocationComponent(it) }
                 }
             }
         }
     }
 
-    private fun permissionRejected() {
-        Toast.makeText(context, R.string.localisation_permissions_are_necessary, Toast.LENGTH_SHORT).show()
-        activity!!.finish()
-    }
-
     private fun onLocationBtnClick(view: View) {
         when (view.id) {
             R.id.locate_device_btn -> {
-                val location = mapboxMap.locationComponent.lastKnownLocation!!
-                val position = CameraPosition.Builder()
-                    .target(LatLng(location.latitude, location.longitude))
-                    .zoom(6.0)
-                    .tilt(0.0)
-                    .build()
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                val isGranted = PermissionsHelper.handlePermission(
+                    this,
+                    context!!,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    AppConstants.LOCATION_PERMISSION
+                )
+                if (isGranted) {
+                    val location = mapboxMap.locationComponent.lastKnownLocation!!
+                    val position = CameraPosition.Builder()
+                        .target(LatLng(location.latitude, location.longitude))
+                        .zoom(6.0)
+                        .tilt(0.0)
+                        .build()
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                }
             }
         }
     }
@@ -295,14 +273,17 @@ class MapFragment : Fragment() {
             }
             R.id.sync -> {
                 Timber.d("Synchronizacja")
-                if (!ConnectivityHelper.isConnectedToNetwork(context!!)) {
-                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
-                } else {
+                if (ConnectivityHelper.isConnectedToNetwork(context!!)) {
                     solarViewModel.fetchAllStationsFromApi()
                     PreferenceManager.getDefaultSharedPreferences(context)
                         .edit()
-                        .putString(getString(R.string.sync_preference), "${getString(R.string.last_sync)}: ${DateHelper.getToday()}")
+                        .putString(
+                            getString(R.string.sync_preference),
+                            "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
+                        )
                         .apply()
+                } else {
+                    Toast.makeText(context, R.string.no_internet_connection, Toast.LENGTH_SHORT).show()
                 }
                 true
             }

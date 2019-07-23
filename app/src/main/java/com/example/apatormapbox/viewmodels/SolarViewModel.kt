@@ -7,6 +7,7 @@ import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.database.MainDatabase
 import com.example.apatormapbox.helpers.Apifactory
+import com.example.apatormapbox.helpers.AppConstants
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.models.dbentities.StationDetailsEntity
 import com.example.apatormapbox.repositiories.SolarRepository
@@ -34,20 +35,25 @@ class SolarViewModel(private val app: Application) : AndroidViewModel(app) {
 
     fun fetchAllStationsFromApi() {
         scope.launch {
-            val stations = repository.getStationsFromApi(
+            val usStations = repository.getStationsFromApi(
                 40,
                 -105,
-                preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+                preferences.getString(
+                    app.resources.getString(R.string.api_key_preference),
+                    AppConstants.getDefaultApiKey(app)
+                )!!
             )
-            this@SolarViewModel.stations.postValue(stations)
-        }
-        scope.launch {
-            val stations = repository.getStationsFromApi(
+            val asiaStations = repository.getStationsFromApi(
                 40,
                 85,
-                preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+                preferences.getString(
+                    app.resources.getString(R.string.api_key_preference),
+                    AppConstants.getDefaultApiKey(app)
+                )!!
             )
-            this@SolarViewModel.stations.postValue(stations)
+            val joinedStations = ArrayList<StationBasicEntity>(usStations!!)
+            joinedStations.addAll(asiaStations!!)
+            this@SolarViewModel.stations.postValue(joinedStations)
         }
     }
 
