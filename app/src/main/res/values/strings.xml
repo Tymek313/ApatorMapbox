@@ -9,20 +9,16 @@
     <string name="time_window_preference">time_window_preference</string>
     <string name="back_btn_PF">BACK</string>
 
-    <string name="lat_textView_PF">Latitude: </string>
-    <string name="Lon_textView_PF">Longitude: </string>
-    <string name="elev_textView_PF">Elevation: </string>
-    <string name="tz_textView_PF">Timezone: </string>
-    <string name="location_textView_PF">Location: </string>
-    <string name="City_textView_PF">City: </string>
-    <string name="state_textView_PF">State: </string>
-    <string name="SolarRF_textView_PF">Filename: </string>
-    <string name="Distance_textView_PF">Distance: </string>
+    <string name="lat_textView_PF">Latitude:</string>
+    <string name="Lon_textView_PF">Longitude:</string>
+    <string name="elev_textView_PF">Elevation:</string>
+    <string name="tz_textView_PF">Timezone:</string>
+    <string name="location_textView_PF">Location:</string>
+    <string name="City_textView_PF">City:</string>
+    <string name="state_textView_PF">State:</string>
+    <string name="SolarRF_textView_PF">Filename:</string>
+    <string name="Distance_textView_PF">Distance:</string>
     <string name="value">value</string>
-    <string name="cancel_btn_CL">Cancel</string>
-    <string name="change_btn_CL">Change</string>
-    <string name="latitude_CL">Latitude</string>
-    <string name="longitude_CL">Longitude</string>
     <!--
         <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
     -->
@@ -33,4 +29,8 @@
     <string name="no_internet_connection">No internet connection</string>
     <string name="localisation_permissions_are_necessary">Localisation permission are necessary</string>
     <string name="last_sync">Last synchronization</string>
+
+    <string name="cancel_btn_CL">cancel</string>
+    <string name="choice_textView_AD">Choose your solar</string>
+
 </resources>

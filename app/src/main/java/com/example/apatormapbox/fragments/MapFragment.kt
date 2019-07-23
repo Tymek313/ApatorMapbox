@@ -38,6 +38,8 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import java.lang.Exception
+import kotlin.random.Random
 
 
 class MapFragment : Fragment() {
@@ -109,9 +111,7 @@ class MapFragment : Fragment() {
             onCreate(savedInstanceState)
         }
 
-        if (symbols.isNotEmpty()) {
-            symbols.clear()
-        }
+
         solarViewModel.fetchStationsFromDb()
 
         return view
@@ -136,6 +136,9 @@ class MapFragment : Fragment() {
     }
 
     private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
+        if (symbols.isNotEmpty()) {
+            symbols.clear()
+        }
         stationBasicEntities.forEach {
             val feature = Feature.fromGeometry(Point.fromLngLat(it.lon!!, it.lat!!))
             feature.addStringProperty("id", it.id)
@@ -146,26 +149,40 @@ class MapFragment : Fragment() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
+    private fun getMarkerChildren(features: FeatureCollection): FeatureCollection {
+        val hasClusterChild = features.features()!!.any {
+            //it.getStringProperty("id") == null
+            it.getBooleanProperty("cluster") == true
+        }
+        if (hasClusterChild) {
+            return getMarkerChildren(geoJsonSource.getClusterChildren(features.features()!![0]))
+        }
+        return features
+    }
+
     private fun onMarkerClick(point: LatLng): Boolean {
         val touchPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(touchPoint, STATION_POINTS_LAYER)
-        if (features.isNotEmpty()) {
-            val selectedFeature = features[0]
-            if (selectedFeature.getBooleanProperty("cluster") == true) {
-                val cameraPosition = CameraPosition.Builder()
-                    .zoom(mapboxMap.cameraPosition.zoom + 2)
-                    .target(point)
-                    .build()
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
-            } else {
-                lonMarker = selectedFeature.getNumberProperty("lon") as Double
-                latMarker = selectedFeature.getNumberProperty("lat") as Double
-                mapZoom = mapboxMap.cameraPosition.zoom
-                val bundle = Bundle()
-                bundle.putString("stationId", selectedFeature.getStringProperty("id"))
-                Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
+
+        try {
+            if (features.isNotEmpty()) {
+                val selectedFeature = features[0]
+                if (selectedFeature.getBooleanProperty("cluster") == true) {
+                    val cameraPosition = CameraPosition.Builder()
+                        .zoom(mapboxMap.cameraPosition.zoom + 2)
+                        .target(point)
+                        .build()
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1250)
+                } else {
+                    lonMarker = selectedFeature.getNumberProperty("lon") as Double
+                    latMarker = selectedFeature.getNumberProperty("lat") as Double
+                    mapZoom = mapboxMap.cameraPosition.zoom
+                    val bundle = Bundle()
+                    bundle.putString("stationId", selectedFeature.getStringProperty("id"))
+                    Navigation.findNavController(activity!!, R.id.navHost).navigate(R.id.paszportFragment, bundle)
+                }
             }
-        }
+        }catch (e: Exception) { }
         return true
     }
 
@@ -284,7 +301,7 @@ class MapFragment : Fragment() {
                     solarViewModel.fetchAllStationsFromApi()
                     PreferenceManager.getDefaultSharedPreferences(context)
                         .edit()
-                        .putString(getString(R.string.sync_preference), DateHelper.getToday())
+                        .putString(getString(R.string.sync_preference), "${getString(R.string.last_sync)}: ${DateHelper.getToday()}")
                         .apply()
                 }
                 true
