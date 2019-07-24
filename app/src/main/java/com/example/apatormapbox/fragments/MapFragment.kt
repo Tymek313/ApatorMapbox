@@ -124,8 +124,8 @@ class MapFragment : Fragment() {
         }
     }
 
-    private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>) {
-        if (stationBasicEntities.isEmpty()) {
+    private fun onDataChanged(stationBasicEntities: List<StationBasicEntity>?) {
+        if (stationBasicEntities == null) {
             Toast.makeText(context, getString(R.string.api_key_error_message), Toast.LENGTH_SHORT).show()
             return
         }
