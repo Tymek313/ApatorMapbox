@@ -15,7 +15,6 @@ import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.*
-import com.example.apatormapbox.helpers.DateHelper.getTodayEQ
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -116,6 +115,7 @@ class MapFragment : Fragment() {
         }
 
         solarViewModel.fetchStationsFromDb()
+
         return view
     }
 
@@ -235,11 +235,11 @@ class MapFragment : Fragment() {
             Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
             addEarthquakeSource(style)
             addHeatmapLayer(style)
-            addCircleLayer(style)
+//            addCircleLayer(style)
         }
     }
 
-    private fun addCircleLayer(loadedMapStyle: Style){
+    private fun addCircleLayer(loadedMapStyle: Style) {
         val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
         circleLayer.setProperties(
             // Size circle radius by earthquake magnitude and zoom level
@@ -287,7 +287,7 @@ class MapFragment : Fragment() {
         loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
     }
 
-    private fun addHeatmapLayer(loadedMapStyle: Style){
+    private fun addHeatmapLayer(loadedMapStyle: Style) {
         val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
         layer.setMaxZoom(2.0F)
         layer.setSourceLayer(HEATMAP_LAYER_SOURCE)
@@ -332,11 +332,12 @@ class MapFragment : Fragment() {
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
     }
 
-    private fun addEarthquakeSource(loadedMapStyle: Style){
-        val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
-        try{
+    private fun addEarthquakeSource(loadedMapStyle: Style) {
+        val EARTHQUAKE_SOURCE_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+        try {
             loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
-        }catch (malformedURLException: Exception){
+        } catch (malformedURLException: Exception) {
             Timber.e(malformedURLException, "That's not an url...")
         }
     }
@@ -392,13 +393,17 @@ class MapFragment : Fragment() {
                     AppConstants.LOCATION_PERMISSION
                 )
                 if (isGranted) {
-                    val location = mapboxMap.locationComponent.lastKnownLocation!!
-                    val position = CameraPosition.Builder()
-                        .target(LatLng(location.latitude, location.longitude))
-                        .zoom(6.0)
-                        .tilt(0.0)
-                        .build()
-                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                    if (FeaturesHelper.isLocationEnabled(context!!)) {
+                        val location = mapboxMap.locationComponent.lastKnownLocation!!
+                        val position = CameraPosition.Builder()
+                            .target(LatLng(location.latitude, location.longitude))
+                            .zoom(6.0)
+                            .tilt(0.0)
+                            .build()
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
+                    } else {
+                        Toast.makeText(context, "Location is disabled", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -417,7 +422,7 @@ class MapFragment : Fragment() {
             }
             R.id.sync -> {
                 Timber.d("Synchronizacja")
-                if (ConnectivityHelper.isConnectedToNetwork(context!!)) {
+                if (FeaturesHelper.isConnectedToNetwork(context!!)) {
                     solarViewModel.fetchAllStationsFromApi()
                     PreferenceManager.getDefaultSharedPreferences(context)
                         .edit()

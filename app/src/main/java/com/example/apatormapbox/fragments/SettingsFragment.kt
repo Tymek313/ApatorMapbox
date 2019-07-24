@@ -8,7 +8,7 @@ import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
-import com.example.apatormapbox.helpers.ConnectivityHelper
+import com.example.apatormapbox.helpers.FeaturesHelper
 import com.example.apatormapbox.helpers.DateHelper
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -35,7 +35,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference(getString(R.string.sync_preference)).apply {
             summary = sharedPreferences.getString(getString(R.string.sync_preference), "")
             setOnPreferenceClickListener {
-                if (ConnectivityHelper.isConnectedToNetwork(context)) {
+                if (FeaturesHelper.isConnectedToNetwork(context)) {
                     solarViewModel.fetchAllStationsFromApi()
                     val lastSyncInfo = "${getString(R.string.last_sync)}: ${DateHelper.getToday()}"
                     it.summary = lastSyncInfo
