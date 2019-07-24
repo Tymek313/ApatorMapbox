@@ -51,9 +51,15 @@ class SolarViewModel(private val app: Application) : AndroidViewModel(app) {
                     AppConstants.getDefaultApiKey(app)
                 )!!
             )
-            val joinedStations = ArrayList<StationBasicEntity>(usStations!!)
-            joinedStations.addAll(asiaStations!!)
-            this@SolarViewModel.stations.postValue(joinedStations)
+            if (usStations == null || asiaStations == null) {
+                this@SolarViewModel.stations.postValue(null)
+            } else {
+                val joinedStations = ArrayList<StationBasicEntity>().apply {
+                    addAll(usStations)
+                    addAll(asiaStations)
+                }
+                this@SolarViewModel.stations.postValue(joinedStations)
+            }
         }
     }
 
