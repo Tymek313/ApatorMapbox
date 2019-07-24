@@ -15,6 +15,7 @@ import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.*
+import com.example.apatormapbox.helpers.DateHelper.getTodayEQ
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -42,6 +43,7 @@ import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.lang.Exception
 import java.net.URL
+import java.time.LocalDate
 
 
 class MapFragment : Fragment() {
@@ -67,7 +69,8 @@ class MapFragment : Fragment() {
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
     //globalne stałe do trzesnien ziemi
-    private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-03"
+    private var from = "2014-01-01"
+    private var to = "2014-01-03"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes";
     private val HEATMAP_LAYER_ID = "earthquakes-heat";
     private val HEATMAP_LAYER_SOURCE = "earthquakes";
@@ -206,6 +209,30 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
+//            val choice = PreferenceManager.getDefaultSharedPreferences(context).getInt(getString(R.string.time_window_preference), 5)
+//            when(choice){
+//                1 ->{
+//                    from = "2014-01-01"
+//                    to = getTodayEQ(0)
+//                }
+//                2 ->{
+//
+//                }
+//                3 ->{
+//
+//                }
+//                4 ->{
+//
+//                }
+//                5 ->{
+//
+//                }
+//                else ->{
+//                    Timber.d("Błąd wyboru zakresu danych")
+//                }
+//            }
+            val localDate = LocalDate.now().minusDays(0)
+            Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
             addEarthquakeSource(style)
             addHeatmapLayer(style)
             addCircleLayer(style)
@@ -306,6 +333,7 @@ class MapFragment : Fragment() {
     }
 
     private fun addEarthquakeSource(loadedMapStyle: Style){
+        val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
         try{
             loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
         }catch (malformedURLException: Exception){
