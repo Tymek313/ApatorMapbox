@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
@@ -32,7 +33,11 @@ class PassportFragment : Fragment() {
         val id = arguments!!.getString("stationId")
         solarViewModel.fetchStationDetails(id!!)
         solarViewModel.stationDetails.observe(this, Observer {
-            refViews(it, view)
+            if (it == null) {
+                Toast.makeText(context, getString(R.string.api_key_error_message), Toast.LENGTH_SHORT).show()
+            } else {
+                refViews(it, view)
+            }
         })
 
         view.back_btn_PF.setOnClickListener {
@@ -108,6 +113,10 @@ class PassportFragment : Fragment() {
         anyChartViewSOL.setChart(pieSOL)
 
         //////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+    fun onDataChanged(stationDetailsEntity: StationDetailsEntity) {
+
     }
 }
 

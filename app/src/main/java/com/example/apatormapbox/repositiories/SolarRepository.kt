@@ -15,9 +15,13 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
         return safeApiCall(
             call = {
                 val data = api.getStationDetails(stationId, apiKey).await().body()
-                val mappedDetails = JsonToStationEntity.map(data!!)
-                stationDao.insertStationDetails(mappedDetails)
-                Response.success(mappedDetails)
+                if (data == null) {
+                    Response.error(400, ResponseBody.create(null, ""))
+                } else {
+                    val mappedDetails = JsonToStationEntity.map(data!!)
+                    stationDao.insertStationDetails(mappedDetails)
+                    Response.success(mappedDetails)
+                }
             },
             errorMessage = "Error fetching stationDetails"
         )
