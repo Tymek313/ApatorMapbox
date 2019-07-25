@@ -245,56 +245,7 @@ class MapFragment : Fragment() {
             Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
             addEarthquakeSource(style)
             addHeatmapLayer(style)
-//            addCircleLayer(style)
         }
-    }
-
-    private fun addCircleLayer(loadedMapStyle: Style) {
-        val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
-        circleLayer.setProperties(
-            // Size circle radius by earthquake magnitude and zoom level
-            circleRadius(
-                interpolate(
-                    linear(), zoom(),
-                    literal(7), interpolate(
-                        linear(), get("mag"),
-                        stop(1, 1),
-                        stop(6, 4)
-                    ),
-                    literal(16), interpolate(
-                        linear(), get("mag"),
-                        stop(1, 5),
-                        stop(6, 50)
-                    )
-                )
-            ),
-
-            // Color circle by earthquake magnitude
-            circleColor(
-                interpolate(
-                    linear(), get("mag"),
-                    literal(1), rgba(33, 102, 172, 0),
-                    literal(2), rgb(103, 169, 207),
-                    literal(3), rgb(209, 229, 240),
-                    literal(4), rgb(253, 219, 199),
-                    literal(5), rgb(239, 138, 98),
-                    literal(6), rgb(178, 24, 43)
-                )
-            ),
-
-            // Transition from heatmap to circle layer by zoom level
-            circleOpacity(
-                interpolate(
-                    linear(), zoom(),
-                    stop(7, 0),
-                    stop(8, 1)
-                )
-            ),
-            circleStrokeColor("white"),
-            circleStrokeWidth(1.0f)
-        )
-
-        loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
     }
 
     private fun addHeatmapLayer(loadedMapStyle: Style) {
@@ -314,29 +265,7 @@ class MapFragment : Fragment() {
                 )
             ),
 
-            heatmapWeight(
-                interpolate(
-                    linear(), get("mag"),
-                    stop(0, 0),
-                    stop(6, 1)
-                )
-            ),
-
-            heatmapIntensity(
-                interpolate(
-                    linear(), zoom(),
-                    stop(0, 1),
-                    stop(9, 3)
-                )
-            ),
-
-            heatmapOpacity(
-                interpolate(
-                    linear(), zoom(),
-                    stop(7, 1),
-                    stop(9, 0)
-                )
-            )
+            heatmapOpacity(0.8F)
         )
 
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
