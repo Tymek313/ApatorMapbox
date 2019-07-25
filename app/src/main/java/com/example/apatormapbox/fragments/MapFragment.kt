@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -97,6 +99,9 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+
+        //notifySolarDanger()
         if (arguments != null) {
             latMarker = arguments!!.getDouble("lat")
             lonMarker = arguments!!.getDouble("lon")
@@ -261,12 +266,13 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
-            val choice = PreferenceManager.getDefaultSharedPreferences(context).getString(getString(R.string.time_window_preference), "1")
-            when(choice){
-                "1" ->{
+            val choice = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.time_window_preference), "1")
+            when (choice) {
+                "1" -> {
                     from = getDate(1)
                 }
-                "2" ->{
+                "2" -> {
                     from = getDate(2)
                 }
                 "3" ->{
@@ -284,7 +290,7 @@ class MapFragment : Fragment() {
                 "7" ->{
                     from = getDate(7)
                 }
-                else ->{
+                else -> {
                     Timber.d("Błąd wyboru zakresu danych")
                 }
             }
@@ -430,6 +436,50 @@ class MapFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun notifySolarDanger(solars: ArrayList<StationBasicEntity>) {
+        if (!solars.isNullOrEmpty()) {
+
+            val builder = NotificationCompat.Builder(context!!, getString(R.string.notifiaction_channel_id))
+                .setSmallIcon(R.drawable.mapbox_logo_icon)
+                .setContentTitle("EarthQuake Warning")
+                .setContentText("Solar stations in danger")
+                .setLargeIcon(
+                    DrawableToBitmapHelper.drawableToBitmap(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.baseline_priority_high_24,
+                            null
+                        )!!
+                    )
+                )
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(notificationList(solars))
+                )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            with(NotificationManagerCompat.from(context!!)) {
+                // notificationId is a unique int for each notification that you must define
+                notify(1, builder.build())
+            }
+
+        }
+    }
+
+    private fun notificationList(solars: ArrayList<StationBasicEntity>): String {
+        var text = ""
+        if (solars.size > 7) {
+            for (i in 0..6) {
+                text += "${solars[i].id}: ${solars[i].lat};${solars[i].lon} \n\r "
+            }
+            text += "and ${solars.size - 7} more..."
+        } else {
+            solars.forEach {
+                text += "${it.id}: ${it.lat};${it.lon} \n\r "
+            }
+        }
+        return text
     }
 
     //Cykle życia Mapbox
