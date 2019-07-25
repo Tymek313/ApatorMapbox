@@ -1,8 +1,10 @@
 package com.example.apatormapbox.interfaces
 
+import com.example.apatormapbox.models.earthquakes.Earthquakes
 import com.example.apatormapbox.models.stationdetails.StationDetails
 import com.example.apatormapbox.models.stations.Station
 import kotlinx.coroutines.Deferred
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -13,4 +15,9 @@ interface SolarApi {
 
     @GET("solar/data_query/v1.json?&radius=2000&all=1")
     fun getStations(@Query("lat") lat: Int, @Query("lon") lon: Int, @Query("api_key") apiKey: String): Deferred<Response<Station>>
+
+    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&maxradiuskm=60")
+    fun getEarthquakes(@Query("starttime") from: String,
+                       @Query("endtime") to: String,
+                       @Query("minmagnitude") minMagnitude: Double): Call<Earthquakes>
 }
