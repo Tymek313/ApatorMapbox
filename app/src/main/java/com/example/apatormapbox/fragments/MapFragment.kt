@@ -392,6 +392,15 @@ class MapFragment : Fragment() {
                 .setSmallIcon(R.drawable.mapbox_logo_icon)
                 .setContentTitle("EarthQuake Warning")
                 .setContentText("Solar stations in danger")
+                .setLargeIcon(
+                    DrawableToBitmapHelper.drawableToBitmap(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.baseline_priority_high_24,
+                            null
+                        )!!
+                    )
+                )
                 .setStyle(
                     NotificationCompat.BigTextStyle()
                         .bigText(notificationList(solars))
