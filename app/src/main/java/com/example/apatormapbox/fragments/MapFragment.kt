@@ -408,7 +408,7 @@ class MapFragment : Fragment() {
     private fun notificationList(solars: ArrayList<StationBasicEntity>): String {
         var text = ""
         solars.forEach {
-            text += "$it \n\r "
+            text += "${it.id}: ${it.lat};${it.lon} \n\r "
         }
         return text
     }
