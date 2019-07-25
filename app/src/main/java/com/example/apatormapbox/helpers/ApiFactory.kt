@@ -15,7 +15,6 @@ object Apifactory {
         .client(solarClient)
         .baseUrl("https://developer.nrel.gov/api/")
         .addConverterFactory(GsonConverterFactory.create())
-        //.addConverterFactory(MoshiConverterFactory.create())
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
 

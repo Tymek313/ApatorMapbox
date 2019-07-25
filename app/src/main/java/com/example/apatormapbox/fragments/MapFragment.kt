@@ -16,7 +16,9 @@ import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.*
+import com.example.apatormapbox.interfaces.SolarApi
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
+import com.example.apatormapbox.models.earthquakes.Earthquakes
 import com.example.apatormapbox.viewmodels.SolarViewModel
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -39,13 +41,18 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import timber.log.Timber
 import java.lang.Exception
 import java.net.URL
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -75,6 +82,7 @@ class MapFragment : Fragment() {
     private var from = getDate(1)
     private var to = getDate(0)
     private val minMagnitude = 4.3
+    private lateinit var earthquakes: Earthquakes
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
@@ -122,6 +130,45 @@ class MapFragment : Fragment() {
         solarViewModel.fetchStationsFromDb()
 
         return view
+    }
+
+    fun fetchEarthquakesFromApi(startTime: String, endTime: String, magnitude: Double) {
+        val api = Apifactory.solarApi
+        api.getEarthquakes(startTime, endTime, magnitude).enqueue(object : Callback<Earthquakes> {
+            override fun onFailure(call: Call<Earthquakes>, t: Throwable) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onResponse(call: Call<Earthquakes>, response: Response<Earthquakes>) {
+                solarViewModel.stations.observe(this@MapFragment, Observer { stationBasicEntityList ->
+                    response.body()!!.features.forEach { feature ->
+                        stationBasicEntityList.forEach { stationBasicEntity ->
+                            distanceInKmBetweenEarthCoordinates(stationBasicEntity.lat!!, stationBasicEntity.lon!!, feature.geometry.coordinates[0], feature.geometry.coordinates[1])
+                        }
+                    }
+                })
+            }
+        })
+    }
+
+    fun degreesToRadians(degrees: Double): Double {
+        return degrees * Math.PI / 180
+    }
+
+    fun distanceInKmBetweenEarthCoordinates(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        var earthRadiusKm = 6371
+
+        var dLat = degreesToRadians(lat2 - lat1)
+        var dLon = degreesToRadians(lon2 - lon1)
+
+        val nLat1 = degreesToRadians(lat1)
+        val nLat2 = degreesToRadians(lat2)
+
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(nLat1) * Math.cos(nLat2)
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+        return earthRadiusKm * c
+
     }
 
     private fun onBackToMap() {
@@ -218,23 +265,24 @@ class MapFragment : Fragment() {
             when(choice){
                 "1" ->{
                     from = getDate(1)
-                    to = getDate(0)
                 }
                 "2" ->{
                     from = getDate(2)
-                    to = getDate(0)
                 }
                 "3" ->{
-                    from = getDate(7)
-                    to = getDate(0)
+                    from = getDate(3)
                 }
                 "4" ->{
-                    from = getDate(30)
-                    to = getDate(0)
+                    from = getDate(4)
                 }
                 "5" ->{
-                    from = getDate(365)
-                    to = getDate(0)
+                    from = getDate(5)
+                }
+                "6" ->{
+                    from = getDate(6)
+                }
+                "7" ->{
+                    from = getDate(7)
                 }
                 else ->{
                     Timber.d("Błąd wyboru zakresu danych")

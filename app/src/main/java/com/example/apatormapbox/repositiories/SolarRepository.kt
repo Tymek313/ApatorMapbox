@@ -6,8 +6,10 @@ import com.example.apatormapbox.mappers.JsonToBasicStationEntity
 import com.example.apatormapbox.mappers.JsonToStationEntity
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.models.dbentities.StationDetailsEntity
+import com.example.apatormapbox.models.earthquakes.Earthquakes
 import okhttp3.ResponseBody
 import retrofit2.Response
+import retrofit2.await
 
 class SolarRepository(private val api: SolarApi, private val stationDao: StationDao) : BaseRepository() {
 
@@ -43,6 +45,16 @@ class SolarRepository(private val api: SolarApi, private val stationDao: Station
                     stationDao.insertAllStations(*mappedStations.toTypedArray())
                     Response.success(mappedStations)
                 }
+            },
+            errorMessage = "Error fetching stations"
+        )
+    }
+
+    suspend fun getEarthquakesFromApi(startTime: String, endTime: String, magnitude: Double): Earthquakes? {
+        return safeApiCall(
+            call = {
+                val data = api.getEarthquakes(startTime, endTime, magnitude).await()
+                Response.success(data)
             },
             errorMessage = "Error fetching stations"
         )
