@@ -92,7 +92,7 @@ class MapFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
-        
+
         //notifySolarDanger()
         if (arguments != null) {
             latMarker = arguments!!.getDouble("lat")
@@ -407,8 +407,15 @@ class MapFragment : Fragment() {
 
     private fun notificationList(solars: ArrayList<StationBasicEntity>): String {
         var text = ""
-        solars.forEach {
-            text += "${it.id}: ${it.lat};${it.lon} \n\r "
+        if (solars.size > 7) {
+            for (i in 0..6) {
+                text += "${solars[i].id}: ${solars[i].lat};${solars[i].lon} \n\r "
+            }
+            text += "and ${solars.size - 7} more..."
+        } else {
+            solars.forEach {
+                text += "${it.id}: ${it.lat};${it.lon} \n\r "
+            }
         }
         return text
     }
