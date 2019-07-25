@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -89,6 +91,9 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+        
+        //notifySolarDanger()
         if (arguments != null) {
             latMarker = arguments!!.getDouble("lat")
             lonMarker = arguments!!.getDouble("lon")
@@ -214,29 +219,25 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
-            val choice = PreferenceManager.getDefaultSharedPreferences(context).getString(getString(R.string.time_window_preference), "1")
-            when(choice){
-                "1" ->{
+            val choice = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.time_window_preference), "1")
+            when (choice) {
+                "1" -> {
                     from = getDate(1)
-                    to = getDate(0)
                 }
-                "2" ->{
+                "2" -> {
                     from = getDate(2)
-                    to = getDate(0)
                 }
-                "3" ->{
+                "3" -> {
                     from = getDate(7)
-                    to = getDate(0)
                 }
-                "4" ->{
+                "4" -> {
                     from = getDate(30)
-                    to = getDate(0)
                 }
-                "5" ->{
+                "5" -> {
                     from = getDate(365)
-                    to = getDate(0)
                 }
-                else ->{
+                else -> {
                     Timber.d("Błąd wyboru zakresu danych")
                 }
             }
@@ -382,6 +383,34 @@ class MapFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun notifySolarDanger(solars: ArrayList<StationBasicEntity>) {
+        if (!solars.isNullOrEmpty()) {
+
+            val builder = NotificationCompat.Builder(context!!, getString(R.string.notifiaction_channel_id))
+                .setSmallIcon(R.drawable.mapbox_logo_icon)
+                .setContentTitle("EarthQuake Warning")
+                .setContentText("Solar stations in danger")
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(notificationList(solars))
+                )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            with(NotificationManagerCompat.from(context!!)) {
+                // notificationId is a unique int for each notification that you must define
+                notify(1, builder.build())
+            }
+
+        }
+    }
+
+    private fun notificationList(solars: ArrayList<StationBasicEntity>): String {
+        var text = ""
+        solars.forEach {
+            text += "$it \n\r "
+        }
+        return text
     }
 
     //Cykle życia Mapbox
