@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -43,6 +44,9 @@ import timber.log.Timber
 import java.lang.Exception
 import java.net.URL
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MapFragment : Fragment() {
@@ -68,12 +72,13 @@ class MapFragment : Fragment() {
     //globalna lista symboli bo postValue z viewModelu nadpisuje stare dane
     private val symbols = ArrayList<Feature>()
     //globalne stałe do trzesnien ziemi
-    private var from = "2014-01-01"
-    private var to = "2014-01-03"
-    private val EARTHQUAKE_SOURCE_ID = "earthquakes";
-    private val HEATMAP_LAYER_ID = "earthquakes-heat";
-    private val HEATMAP_LAYER_SOURCE = "earthquakes";
-    private val CIRCLE_LAYER_ID = "earthquakes-circle";
+    private var from = getDate(1)
+    private var to = getDate(0)
+    private val minMagnitude = 4.3
+    private val EARTHQUAKE_SOURCE_ID = "earthquakes"
+    private val HEATMAP_LAYER_ID = "earthquakes-heat"
+    private val HEATMAP_LAYER_SOURCE = "earthquakes"
+    private val CIRCLE_LAYER_ID = "earthquakes-circle"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -209,28 +214,33 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
-//            val choice = PreferenceManager.getDefaultSharedPreferences(context).getInt(getString(R.string.time_window_preference), 5)
-//            when(choice){
-//                1 ->{
-//                    from = "2014-01-01"
-//                    to = getTodayEQ(0)
-//                }
-//                2 ->{
-//
-//                }
-//                3 ->{
-//
-//                }
-//                4 ->{
-//
-//                }
-//                5 ->{
-//
-//                }
-//                else ->{
-//                    Timber.d("Błąd wyboru zakresu danych")
-//                }
-//            }
+            val choice = PreferenceManager.getDefaultSharedPreferences(context).getString(getString(R.string.time_window_preference), "1")
+            when(choice){
+                "1" ->{
+                    from = getDate(1)
+                    to = getDate(0)
+                }
+                "2" ->{
+                    from = getDate(2)
+                    to = getDate(0)
+                }
+                "3" ->{
+                    from = getDate(7)
+                    to = getDate(0)
+                }
+                "4" ->{
+                    from = getDate(30)
+                    to = getDate(0)
+                }
+                "5" ->{
+                    from = getDate(365)
+                    to = getDate(0)
+                }
+                else ->{
+                    Timber.d("Błąd wyboru zakresu danych")
+                }
+            }
+
             val localDate = LocalDate.now().minusDays(0)
             Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
             addEarthquakeSource(style)
@@ -289,8 +299,8 @@ class MapFragment : Fragment() {
 
     private fun addHeatmapLayer(loadedMapStyle: Style) {
         val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
-        layer.setMaxZoom(2.0F)
-        layer.setSourceLayer(HEATMAP_LAYER_SOURCE)
+        layer.maxZoom = 8.0F
+        layer.sourceLayer = HEATMAP_LAYER_SOURCE
         layer.setProperties(
             heatmapColor(
                 interpolate(
@@ -334,7 +344,7 @@ class MapFragment : Fragment() {
 
     private fun addEarthquakeSource(loadedMapStyle: Style) {
         val EARTHQUAKE_SOURCE_URL =
-            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to&minmagnitude=$minMagnitude"
         try {
             loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
         } catch (malformedURLException: Exception) {
@@ -402,11 +412,16 @@ class MapFragment : Fragment() {
                             .build()
                         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 1250)
                     } else {
-                        Toast.makeText(context, "Location is disabled", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.location_disabled, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }
+    }
+
+    private fun getDate(days: Int): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        return LocalDate.now().minusDays(days.toLong()).format(formatter)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
