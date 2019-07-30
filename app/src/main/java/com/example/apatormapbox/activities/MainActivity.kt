@@ -3,6 +3,7 @@ package com.example.apatormapbox.activities
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apatormapbox.R
+import com.google.firebase.crash.FirebaseCrash
 
 class MainActivity : AppCompatActivity() {
 
