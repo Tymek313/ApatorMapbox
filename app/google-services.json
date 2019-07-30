@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "991204446320",
+    "firebase_url": "https://mojeniesamowiteexception.firebaseio.com",
+    "project_id": "mojeniesamowiteexception",
+    "storage_bucket": "mojeniesamowiteexception.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991204446320:android:80d4a94f5ced9f85",
+        "android_client_info": {
+          "package_name": "com.example.apatormapbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991204446320-iegkprcra16bg7772ofht9lj0ggrqq5t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7tkXxtwY_6glQilMsAYmboKeULBQDS9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991204446320-iegkprcra16bg7772ofht9lj0ggrqq5t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

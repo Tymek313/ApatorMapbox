@@ -76,7 +76,7 @@ class SolarViewModel(private val app: Application) : AndroidViewModel(app) {
             if (stationDetails == null) {
                 stationDetails = repository.getStationDetailsFromApi(
                     stationId,
-                    preferences.getString(app.resources.getString(R.string.api_key_preference), "")!!
+                    preferences.getString(app.resources.getString(R.string.api_key_preference), AppConstants.getDefaultApiKey(app))!!
                 )
             }
             this@SolarViewModel.stationDetails.postValue(stationDetails)

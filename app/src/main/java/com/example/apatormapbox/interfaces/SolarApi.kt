@@ -16,7 +16,7 @@ interface SolarApi {
     @GET("solar/data_query/v1.json?&radius=2000&all=1")
     fun getStations(@Query("lat") lat: Int, @Query("lon") lon: Int, @Query("api_key") apiKey: String): Deferred<Response<Station>>
 
-    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&maxradiuskm=60")
+    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson")
     fun getEarthquakes(@Query("starttime") from: String,
                        @Query("endtime") to: String,
                        @Query("minmagnitude") minMagnitude: Double): Call<Earthquakes>
