@@ -3,10 +3,14 @@ package com.example.apatormapbox.fragments
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.UiThread
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -16,7 +20,6 @@ import androidx.preference.PreferenceManager
 import com.example.apatormapbox.R
 import com.example.apatormapbox.activities.MainActivity
 import com.example.apatormapbox.helpers.*
-import com.example.apatormapbox.interfaces.SolarApi
 import com.example.apatormapbox.models.dbentities.StationBasicEntity
 import com.example.apatormapbox.models.earthquakes.Earthquakes
 import com.example.apatormapbox.viewmodels.SolarViewModel
@@ -29,6 +32,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.log.Logger
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
@@ -41,19 +45,15 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
-import java.lang.Exception
+import java.net.URI
 import java.net.URL
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.collections.ArrayList
 
 
 class MapFragment : Fragment() {
@@ -93,6 +93,7 @@ class MapFragment : Fragment() {
         solarViewModel.stations.observe(this, Observer {
             onDataChanged(it)
         })
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -107,7 +108,7 @@ class MapFragment : Fragment() {
         }
 
         geoJsonSource = GeoJsonSource(GEO_JSON_SOURCE_ID, GEO_JSON_OPTIONS)
-        geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
+        setGeoJson()
 
         //przygotowanie toolbara
         (activity as MainActivity).apply {
@@ -119,39 +120,49 @@ class MapFragment : Fragment() {
             }
         }
 
-        mapView = view.mapView.apply {
-            getMapAsync {
-                onMapReady(it)
-                onBackToMap()
-            }
-            onCreate(savedInstanceState)
+        mapView = view.mapView
+        mapView.getMapAsync {
+            onMapReady(it)
+            onBackToMap()
         }
 
         solarViewModel.fetchStationsFromDb()
-
         return view
     }
 
-    fun fetchEarthquakesFromApi(startTime: String, endTime: String, magnitude: Double) {
+    private fun fetchEarthquakesFromApi(startTime: String, endTime: String, magnitude: Double) {
         val api = Apifactory.solarApi
         api.getEarthquakes(startTime, endTime, magnitude).enqueue(object : Callback<Earthquakes> {
             override fun onFailure(call: Call<Earthquakes>, t: Throwable) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Logger.d("EARTH", t.message)
+                t.printStackTrace()
             }
 
             override fun onResponse(call: Call<Earthquakes>, response: Response<Earthquakes>) {
+                val endangeredSolars = ArrayList<StationBasicEntity>()
                 solarViewModel.stations.observe(this@MapFragment, Observer { stationBasicEntityList ->
                     response.body()!!.features.forEach { feature ->
                         stationBasicEntityList.forEach { stationBasicEntity ->
-                            distanceInKmBetweenEarthCoordinates(stationBasicEntity.lat!!, stationBasicEntity.lon!!, feature.geometry.coordinates[0], feature.geometry.coordinates[1])
+                            if (
+                                distanceInKmBetweenEarthCoordinates(
+                                    stationBasicEntity.lat!!,
+                                    stationBasicEntity.lon!!,
+                                    feature.geometry.coordinates[1],
+                                    feature.geometry.coordinates[0]
+                                )
+                                < 300
+                            ) {
+                                endangeredSolars.add(stationBasicEntity)
+                            }
                         }
                     }
+                    notifySolarDanger(endangeredSolars.distinct())
                 })
             }
         })
     }
 
-    fun degreesToRadians(degrees: Double): Double {
+    private fun degreesToRadians(degrees: Double): Double {
         return degrees * Math.PI / 180
     }
 
@@ -164,9 +175,9 @@ class MapFragment : Fragment() {
         val nLat1 = degreesToRadians(lat1)
         val nLat2 = degreesToRadians(lat2)
 
-        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(nLat1) * Math.cos(nLat2)
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(nLat1) * Math.cos(nLat2)
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
         return earthRadiusKm * c
 
     }
@@ -204,6 +215,13 @@ class MapFragment : Fragment() {
             feature.addNumberProperty("lat", it.lat)
             symbols.add(feature)
         }
+        activity!!.runOnUiThread {
+            setGeoJson()
+        }
+    }
+
+    @UiThread
+    private fun setGeoJson() {
         geoJsonSource.setGeoJson(FeatureCollection.fromFeatures(symbols))
     }
 
@@ -233,7 +251,14 @@ class MapFragment : Fragment() {
 
     private fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
-
+        mapboxMap.uiSettings.apply {
+            val topMargin =
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80f, resources.displayMetrics).toInt()
+            val rightMargin =
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15f, resources.displayMetrics).toInt()
+            compassGravity = Gravity.END
+            setCompassMargins(0, topMargin, rightMargin, 0)
+        }
         mapboxMap.addOnMapClickListener {
             onMarkerClick(it)
         }
@@ -262,39 +287,43 @@ class MapFragment : Fragment() {
                 )
         ) { style ->
             onStyleLoaded(style)
-            val choice = PreferenceManager.getDefaultSharedPreferences(context).getString(getString(R.string.time_window_preference), "1")
-            when(choice){
-                "1" ->{
+            val choice = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.time_window_preference), "1")
+            when (choice) {
+                "1" -> {
                     from = getDate(1)
                 }
-                "2" ->{
+                "2" -> {
                     from = getDate(2)
                 }
-                "3" ->{
+                "3" -> {
                     from = getDate(3)
                 }
-                "4" ->{
+                "4" -> {
                     from = getDate(4)
                 }
-                "5" ->{
+                "5" -> {
                     from = getDate(5)
                 }
-                "6" ->{
+                "6" -> {
                     from = getDate(6)
                 }
-                "7" ->{
+                "7" -> {
                     from = getDate(7)
                 }
-                else ->{
+                else -> {
                     Timber.d("Błąd wyboru zakresu danych")
                 }
             }
 
             val localDate = LocalDate.now().minusDays(0)
             Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
+//            addClusteredGeoJsonSource(style)
             addEarthquakeSource(style)
             addHeatmapLayer(style)
+            fetchEarthquakesFromApi(from, to, 4.3)
         }
+
     }
 
     private fun addHeatmapLayer(loadedMapStyle: Style) {
@@ -316,6 +345,10 @@ class MapFragment : Fragment() {
 
             heatmapOpacity(0.8F)
         )
+
+        if (loadedMapStyle.getLayer("earthquakes-heat") != null) {
+            loadedMapStyle.removeLayer("earthquakes-heat")
+        }
 
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
     }
@@ -404,6 +437,8 @@ class MapFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_toolbar_menu, menu)
+        val item = menu.findItem(R.id.switchMap)
+        item.setActionView(R.layout.switch_layout)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -431,6 +466,74 @@ class MapFragment : Fragment() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun addClusteredGeoJsonSource(loadedMapStyle: Style) {
+        val EARTHQUAKE_SOURCE_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to&minmagnitude=$minMagnitude"
+        loadedMapStyle.addSource(
+            GeoJsonSource(
+                "earthquakes",
+                URI(EARTHQUAKE_SOURCE_URL),
+                GeoJsonOptions()
+                    .withCluster(true)
+                    .withClusterMaxZoom(15)
+                    .withClusterRadius(20)
+            )
+        )
+
+        val unclustered = CircleLayer("unclustered-points", "earthquakes")
+        unclustered.setProperties(
+            circleColor(Color.parseColor("#FBB03B")),
+            circleRadius(20f),
+            circleBlur(1f)
+        )
+        unclustered.setFilter(neq(get("cluster"), literal(true)))
+        loadedMapStyle.addLayerBelow(unclustered, "building")
+    }
+
+    private fun notifySolarDanger(solars: List<StationBasicEntity>) {
+        if (!solars.isNullOrEmpty()) {
+
+            val builder = NotificationCompat.Builder(context!!, getString(R.string.notifiaction_channel_id))
+                .setSmallIcon(R.drawable.mapbox_logo_icon)
+                .setContentTitle("EarthQuake Warning")
+                .setContentText("Solar stations in danger")
+                .setLargeIcon(
+                    DrawableToBitmapHelper.drawableToBitmap(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.baseline_priority_high_24,
+                            null
+                        )!!
+                    )
+                )
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(notificationList(solars))
+                )
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            with(NotificationManagerCompat.from(context!!)) {
+                // notificationId is a unique int for each notification that you must define
+                notify(1, builder.build())
+            }
+
+        }
+    }
+
+    private fun notificationList(solars: List<StationBasicEntity>): String {
+        var text = ""
+        if (solars.size > 7) {
+            for (i in 0..6) {
+                text += "#${i + 1}: ${solars[i].id} \n\r "
+            }
+            text += "and ${solars.size - 7} more..."
+        } else {
+            solars.forEachIndexed { index, stationBasicEntity ->
+                text += "#${index + 1}: ${stationBasicEntity.id}\n\r "
+            }
+        }
+        return text
     }
 
     //Cykle życia Mapbox

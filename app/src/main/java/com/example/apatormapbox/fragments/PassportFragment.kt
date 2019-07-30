@@ -41,6 +41,7 @@ class PassportFragment : Fragment() {
         })
 
         view.back_btn_PF.setOnClickListener {
+            throw RuntimeException("Jestes Pijany wladzom maćk")
             Navigation.findNavController(view).popBackStack()
         }
 
@@ -56,7 +57,7 @@ class PassportFragment : Fragment() {
         val location = stationDetailsEntity.location
         val city = stationDetailsEntity.city
         val state = stationDetailsEntity.state
-        val distance = stationDetailsEntity.distance
+        val distance = "Brak Danych"
         val acAnnual = stationDetailsEntity.acAnnual
         val solradAnnual = stationDetailsEntity.solradAnnual
         val capacityFactor = stationDetailsEntity.capacityFactor
@@ -70,7 +71,7 @@ class PassportFragment : Fragment() {
         //przygotowane wczytanie danych i wyswietlnie danych --->
         //////////////////////////////////////////////////////////////////////////////////////////
         // sekcja ustawienia value - okno tekstu z wartosciami -->
-        view.distance_value_PF.text = distance.toString()
+        view.distance_value_PF.text = distance
         view.state_value_PF.text = state
         view.city_value_PF.text = city
         view.location_value_PF.text = location

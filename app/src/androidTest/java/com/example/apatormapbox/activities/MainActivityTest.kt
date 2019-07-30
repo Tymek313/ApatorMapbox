@@ -3,6 +3,8 @@ package com.example.apatormapbox.activities
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.test.espresso.Espresso.onData
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -36,9 +38,39 @@ class MainActivityTest {
 
     @Test
     fun mainActivityTest() {
+        val actionMenuItemView2 = onView(
+            allOf(
+                withId(R.id.sync), withContentDescription("Sync"),
+                childAtPosition(
+                    childAtPosition(
+                        withId(R.id.mapToolbar),
+                        2
+                    ),
+                    0
+                ),
+                isDisplayed()
+            )
+        )
+        actionMenuItemView2.perform(click())
+
+        val floatingActionButton = onView(
+            allOf(
+                withId(R.id.locate_device_btn),
+                childAtPosition(
+                    childAtPosition(
+                        withId(R.id.navHost),
+                        0
+                    ),
+                    2
+                ),
+                isDisplayed()
+            )
+        )
+        floatingActionButton.perform(click())
+
         val appCompatImageButton = onView(
             allOf(
-                withContentDescription("Navigate up"),
+                withContentDescription("Przejdź wyżej"),
                 childAtPosition(
                     allOf(
                         withId(R.id.mapToolbar),
@@ -81,42 +113,8 @@ class MainActivityTest {
                     )
                 )
             )
-            .atPosition(3)
+            .atPosition(0)
         appCompatCheckedTextView.perform(click())
-
-        val linearLayout2 = onView(
-            allOf(
-                childAtPosition(
-                    allOf(
-                        withId(R.id.recycler_view),
-                        childAtPosition(
-                            withId(android.R.id.list_container),
-                            0
-                        )
-                    ),
-                    0
-                ),
-                isDisplayed()
-            )
-        )
-        linearLayout2.perform(click())
-
-        pressBack()
-
-        val floatingActionButton = onView(
-            allOf(
-                withId(R.id.locate_device_btn),
-                childAtPosition(
-                    childAtPosition(
-                        withId(R.id.navHost),
-                        0
-                    ),
-                    2
-                ),
-                isDisplayed()
-            )
-        )
-        floatingActionButton.perform(click())
     }
 
     private fun childAtPosition(

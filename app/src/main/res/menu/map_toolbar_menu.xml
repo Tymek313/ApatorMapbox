@@ -5,4 +5,8 @@
           android:title="Sync"
           app:showAsAction="ifRoom"
           android:icon="@drawable/ic_sync"/>
+<item android:id="@+id/switchMap"
+      android:title="SwitchMap"
+      app:showAsAction="ifRoom"/>
+
 </menu>

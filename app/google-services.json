@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "909621490097",
-    "firebase_url": "https://androidsolarmap.firebaseio.com",
-    "project_id": "androidsolarmap",
-    "storage_bucket": "androidsolarmap.appspot.com"
+    "project_number": "991204446320",
+    "firebase_url": "https://mojeniesamowiteexception.firebaseio.com",
+    "project_id": "mojeniesamowiteexception",
+    "storage_bucket": "mojeniesamowiteexception.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:909621490097:android:80d4a94f5ced9f85",
+        "mobilesdk_app_id": "1:991204446320:android:80d4a94f5ced9f85",
         "android_client_info": {
           "package_name": "com.example.apatormapbox"
         }
       },
       "oauth_client": [
         {
-          "client_id": "909621490097-u871rfinu8trm7i3rhrsp2bfjklvuq99.apps.googleusercontent.com",
+          "client_id": "991204446320-iegkprcra16bg7772ofht9lj0ggrqq5t.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAqmWBUL2YTXM4S4jIXZrdRhjioHYRhHsg"
+          "current_key": "AIzaSyC7tkXxtwY_6glQilMsAYmboKeULBQDS9w"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "909621490097-u871rfinu8trm7i3rhrsp2bfjklvuq99.apps.googleusercontent.com",
+              "client_id": "991204446320-iegkprcra16bg7772ofht9lj0ggrqq5t.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

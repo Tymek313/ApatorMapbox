@@ -23,6 +23,9 @@
     <string name="synchronization">Synchronization</string>
     <string name="solar_api_key">Solar API key</string>
     <string name="time_window">Time Window</string>
+    <!--Notification-->
+    <string name="notifiaction_channel_id">EarthQuake</string>
+    <string name="channel_description">Channel_Desc</string>
     <!--Toast-->
     <string name="no_internet_connection">No internet connection</string>
     <string name="localisation_permissions_are_necessary">Localisation permission are necessary</string>
