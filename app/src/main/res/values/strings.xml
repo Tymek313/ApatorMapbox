@@ -37,6 +37,6 @@
     <string name="solar_api">0T4V4lMTxPT7b9JJexnz1vLsPzWXlX6XV8exWuud</string>
 
     <string name="api_key_error_message">Solar API key error</string>
-    <string name="map_url">mapbox://styles/apatormapbox/cjyfsbbq207q91dqi32j6435u</string>
+    <string name="map_url">mapbox://styles/apatormapbox/cjypkw9qf03xc1cqpyuw1qb9f</string>
     <string name="location_disabled">Location is disabled</string>
 </resources>
